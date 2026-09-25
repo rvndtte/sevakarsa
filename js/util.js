@@ -36,15 +36,15 @@ window.App = window.App || {};
 
   /* ----- status ----- */
   const ST = {
-    available: ['Available', 'green'], reserved: ['Reserved', 'amber'], proposal: ['Proposal', 'blue'], matched: ['Matched', 'purple'],
-    rejected: ['Rejected', 'red'], expired: ['Expired', 'gray'], draft: ['Draft', 'gray'], requested: ['Diajukan', 'blue'],
-    declined: ['Tidak dipilih', 'gray'], pending: ['Menunggu verifikasi', 'amber'], approved: ['Terverifikasi', 'green'],
-    submitted: ['Menunggu review', 'blue'], revision: ['Perlu revisi', 'amber'], done: ['Selesai', 'purple']
+    available: ['Available', 'green'], requested: ['Diajukan', 'blue'], connected: ['Disetujui', 'amber'], matched: ['Aktif', 'purple'],
+    rejected: ['Ditolak', 'red'], expired: ['Kedaluwarsa', 'gray'], draft: ['Draft', 'gray'],
+    declined: ['Dibatalkan', 'gray'], pending: ['Menunggu verifikasi', 'amber'], approved: ['Terverifikasi', 'green'],
+    submitted: ['Menunggu konfirmasi desa', 'blue'], revision: ['Perlu revisi', 'amber'], confirmed: ['Sesuai', 'green'], closed: ['Ditutup', 'gray'], done: ['Selesai', 'purple']
   };
   A.tag = (s, extra = '') => { const [l, c] = ST[s] || [s, 'gray']; return `<span class="tag ${c} ${extra}">${l}</span>`; };
   A.chipTag = (t, c = 'green') => `<span class="tag ${c}">${A.esc(t)}</span>`;
   A.NOTIF = {
-    partnership: ['heart-handshake', 'c-green'], proposal: ['file-text', 'c-blue'], discussion: ['message', 'c-blue'],
+    partnership: ['heart-handshake', 'c-green'], agreement: ['file-check', 'c-blue'],
     deadline: ['clock', 'c-amber'], status: ['circle-check', 'c-purple'], reject: ['circle-x', 'c-red'], expire: ['hourglass-empty', 'c-gray'], system: ['bell', 'c-gray']
   };
 

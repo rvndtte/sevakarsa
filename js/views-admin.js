@@ -7,7 +7,7 @@
     const c = r => D.users.filter(u => u.role === r && u.verified === 'approved').length;
     return V.head('Dashboard Super Admin', 'Pantau aktivitas keseluruhan platform SumbangRuang') +
       `<div class="g3">${V.stat('home-heart', 'c-green', c('desa'), 'Desa terverifikasi')}${V.stat('building-community', 'c-blue', c('univ'), 'Universitas terverifikasi')}<a href="#/admin/verify" style="display:block">${V.stat('user-exclamation', 'c-amber', pend.length, 'Menunggu verifikasi')}</a>
-        ${V.stat('file-text', 'c-green', D.problems.filter(p => ['available', 'reserved', 'proposal'].includes(p.status)).length, 'Kebutuhan aktif')}${V.stat('heart-handshake', 'c-amber', D.partnerships.filter(p => ['reserved', 'proposal'].includes(p.status)).length, 'Partnership berjalan')}${V.stat('inbox', 'c-purple', D.partnerships.filter(p => p.proposal?.status === 'submitted').length, 'Proposal menunggu review')}</div>
+        ${V.stat('file-text', 'c-green', D.problems.filter(p => ['available', 'requested', 'connected'].includes(p.status)).length, 'Kebutuhan aktif')}${V.stat('heart-handshake', 'c-amber', D.partnerships.filter(p => ['requested', 'connected'].includes(p.status)).length, 'Kerja sama berjalan')}${V.stat('inbox', 'c-purple', V.pendingGroups(D.partnerships), 'Kesepakatan menunggu konfirmasi')}</div>
       <div class="g2 mt16"><div class="card"><div class="row sp"><h3 class="nb">Akun menunggu verifikasi</h3><a class="xs b" style="color:var(--green-500)" href="#/admin/verify">Lihat semua</a></div><div class="list mt12">${pend.map(u => `<div class="item"><div class="ib s ${u.role === 'desa' ? 'c-green' : 'c-blue'}">${A.ic(u.role === 'desa' ? 'home-heart' : 'building-community')}</div><div class="grow"><div class="b">${A.esc(u.name)}</div><div class="xs mu">${A.esc(u.profile.city)} · ${A.ago(u.createdAt)}</div></div><button class="btn sm" data-act="reviewAcc" data-id="${u.id}">Tinjau</button></div>`).join('') || A.empty('user-check', 'Tidak ada antrean verifikasi.')}</div></div>
         <div class="card"><h3>Aktivitas sistem</h3><div class="list">${D.log.slice(0, 6).map(l => `<div class="row top">${A.ic(l.icon, 'mu')}<div><div class="sm b">${A.esc(l.text)}</div><div class="xs mu">${A.ago(l.ts)}</div></div></div>`).join('')}</div></div></div>`;
   });
@@ -37,12 +37,12 @@
   A.route('/admin/data', ['admin'], () => {
     const D = S.data, t = A.ui.dtab || 'problems';
     const rows = {
-      problems: D.problems.map(p => `<tr><td><b>${A.esc(p.title)}</b><div class="xs mu">${A.esc(S.user(p.desaId)?.name)}</div></td><td>${A.esc(p.category)}</td><td>${p.duration} bln</td><td>${A.tag(p.status)}</td></tr>`),
+      problems: D.problems.map(p => `<tr><td><b>${A.esc(p.title)}</b><div class="xs mu">${A.esc(S.user(p.desaId)?.name)}</div></td><td>${A.esc(p.category)}</td><td>${A.tag(p.status)}</td></tr>`),
       partnerships: D.partnerships.map(p => `<tr><td><b>${A.esc(V.problemTitle(p))}</b></td><td>${A.esc(S.user(p.desaId)?.name)} × ${A.esc(S.user(p.univId)?.name)}</td><td>${A.ago(p.createdAt)}</td><td>${A.tag(p.status)}</td></tr>`),
       users: D.users.filter(u => u.role !== 'admin').map(u => `<tr><td><b>${A.esc(u.name)}</b><div class="xs mu">${A.esc(u.email)}</div></td><td>${u.role === 'desa' ? 'Desa' : 'Universitas'}</td><td>${A.esc(u.profile.city)}</td><td>${A.tag(u.verified)}</td></tr>`)
     }[t];
-    const head = { problems: ['Kebutuhan', 'Kategori', 'Durasi', 'Status'], partnerships: ['Kebutuhan', 'Pihak', 'Diajukan', 'Status'], users: ['Akun', 'Peran', 'Lokasi', 'Status'] }[t];
-    return V.head('Data platform', 'Seluruh data kebutuhan, partnership, dan akun') + `<div class="chips mb">${[['problems', 'Kebutuhan'], ['partnerships', 'Partnership'], ['users', 'Akun']].map(x => `<button class="chip ${t === x[0] ? 'on' : ''}" data-act="dtab" data-k="${x[0]}">${x[1]}</button>`).join('')}</div>
+    const head = { problems: ['Kebutuhan', 'Kategori', 'Status'], partnerships: ['Kebutuhan', 'Pihak', 'Diajukan', 'Status'], users: ['Akun', 'Peran', 'Lokasi', 'Status'] }[t];
+    return V.head('Data platform', 'Seluruh data kebutuhan, kerja sama, dan akun') + `<div class="chips mb">${[['problems', 'Kebutuhan'], ['partnerships', 'Kerja sama'], ['users', 'Akun']].map(x => `<button class="chip ${t === x[0] ? 'on' : ''}" data-act="dtab" data-k="${x[0]}">${x[1]}</button>`).join('')}</div>
       <div class="card flat"><table class="table"><thead><tr>${head.map(h => `<th>${h}</th>`).join('')}</tr></thead><tbody>${rows.join('')}</tbody></table></div>`;
   });
   A.acts.dtab = d => { A.ui.dtab = d.k; A.render(); };

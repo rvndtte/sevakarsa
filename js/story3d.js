@@ -26,7 +26,7 @@ function paintCard(cv, n, state) {
   g.clearRect(0, 0, cv.width, cv.height);
   rr(g, 6, 6, 500, 196, 38); g.fillStyle = locked ? '#CFD5CE' : chosen ? '#F2FAC8' : '#FFFFFF'; g.fill();
   g.lineWidth = chosen ? 8 : 3; g.strokeStyle = chosen ? '#8FB51F' : locked ? '#B3BBB2' : '#E4E2D6'; g.stroke();
-  const tag = locked ? 'Terkunci' : chosen ? 'Matched' : 'Available', tc = locked ? '#6E7B72' : chosen ? '#3F5A00' : '#1F5138', tb = locked ? '#E3E7E1' : chosen ? '#D8EC6E' : '#E1EEDB';
+  const tag = locked ? 'Terkunci' : chosen ? 'Aktif' : 'Available', tc = locked ? '#6E7B72' : chosen ? '#3F5A00' : '#1F5138', tb = locked ? '#E3E7E1' : chosen ? '#D8EC6E' : '#E1EEDB';
   g.font = '700 22px "Plus Jakarta Sans",system-ui,sans-serif'; const tw = g.measureText(tag).width + 32;
   rr(g, 36, 30, tw, 36, 18); g.fillStyle = tb; g.fill(); g.fillStyle = tc; g.fillText(tag, 52, 56);
   g.fillStyle = locked ? '#5E6A62' : '#16241B'; g.font = '700 44px Fraunces,Georgia,serif'; g.fillText(n.t, 36, 118);
@@ -110,8 +110,8 @@ function build() {
   const ringBg = new THREE.Mesh(new THREE.RingGeometry(1.5, 1.68, 96, 1), new THREE.MeshBasicMaterial({ color: '#FFFFFF', transparent: true, opacity: .16, side: THREE.DoubleSide, depthWrite: false }));
   const ringMat = new THREE.MeshBasicMaterial({ color: '#D99A21', transparent: true, side: THREE.DoubleSide, depthWrite: false });
   const ring = new THREE.Mesh(ringGeo, ringMat); ringGrp.add(ringBg, ring); ringGrp.visible = false; scene.add(ringGrp);
-  const lblDisc = textSprite('Diskusi · 7 hari', '#FBEFD0', '#8A5F0A', 440), lblProp = textSprite('Proposal · 7 hari', '#DDEAF3', '#2B6388', 440);
-  const lblOk = textSprite('Proposal diterima', '#D8EC6E', '#0B1F16', 460);
+  const lblDisc = textSprite('Kontak · WhatsApp', '#FBEFD0', '#8A5F0A', 440), lblProp = textSprite('Kesepakatan koordinator', '#DDEAF3', '#2B6388', 440);
+  const lblOk = textSprite('Kesepakatan sesuai', '#D8EC6E', '#0B1F16', 460);
   [lblDisc, lblProp, lblOk].forEach(l => { l.position.copy(mid).add(V(0, -2.15, 0)); l.material.opacity = 0; l.visible = false; scene.add(l); });
 
   const paperT = paperTex('#D99A21'), propT = paperTex('#8FB51F');

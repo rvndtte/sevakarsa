@@ -2,8 +2,8 @@
 window.App = window.App || {};
 (function (A) {
   const NAV = {
-    desa: [['/desa', 'home', 'Beranda'], ['/desa/problems', 'file-text', 'Kebutuhan Saya'], ['/partnerships', 'heart-handshake', 'Partnership'], ['/status', 'timeline-event', 'Status'], ['/notifications', 'bell', 'Notifikasi'], ['/desa/history', 'history', 'Riwayat & Dokumentasi'], ['/desa/profile', 'user', 'Profil Desa']],
-    univ: [['/univ', 'home', 'Beranda'], ['/univ/discover', 'compass', 'Jelajahi Desa'], ['/partnerships', 'heart-handshake', 'Partnership & Proposal'], ['/status', 'timeline-event', 'Status'], ['/notifications', 'bell', 'Notifikasi'], ['/univ/profile', 'user', 'Profil Tim']],
+    desa: [['/desa', 'home', 'Beranda'], ['/desa/problems', 'file-text', 'Kebutuhan Saya'], ['/partnerships', 'heart-handshake', 'Kerja Sama'], ['/status', 'timeline-event', 'Status'], ['/notifications', 'bell', 'Notifikasi'], ['/desa/history', 'history', 'Riwayat & Dokumentasi'], ['/desa/profile', 'user', 'Profil Desa']],
+    univ: [['/univ', 'home', 'Beranda'], ['/univ/discover', 'compass', 'Jelajahi Desa'], ['/partnerships', 'heart-handshake', 'Kerja Sama'], ['/status', 'timeline-event', 'Status'], ['/notifications', 'bell', 'Notifikasi'], ['/univ/profile', 'user', 'Profil Tim']],
     admin: [['/admin', 'layout-dashboard', 'Dashboard'], ['/admin/verify', 'user-check', 'Verifikasi Akun'], ['/admin/data', 'database', 'Data Platform'], ['/admin/log', 'activity', 'Log Aktivitas']]
   };
   const active = (href, path) => href === '/desa' || href === '/univ' || href === '/admin' ? path === href : path === href || path.startsWith(href + '/') || (href === '/desa/problems' && path.startsWith('/desa/problem')) || (href === '/univ/discover' && (path.startsWith('/univ/problem') || path.startsWith('/univ/match')));
@@ -32,7 +32,7 @@ window.App = window.App || {};
       <h4>Simulasi waktu</h4>
       <div class="sm mu" style="margin-bottom:8px">Sekarang: <b style="color:var(--text)">${A.fmtDT(A.now())}</b>${off ? ` (+${Math.round(off / A.DAY)} hari)` : ''}</div>
       <div class="btns"><button class="btn sm out" data-act="advance" data-days="1">+1 hari</button><button class="btn sm out" data-act="advance" data-days="3">+3 hari</button><button class="btn sm out" data-act="advance" data-days="7">+7 hari</button><button class="btn sm ghost" data-act="resetClock">Reset waktu</button></div>
-      <p class="xs mu mt8">Majukan waktu untuk melihat countdown habis, status <b>Expired</b>, dan notifikasi deadline.</p>
+      <p class="xs mu mt8">Majukan waktu untuk melihat countdown habis, status <b>Kedaluwarsa</b>, dan notifikasi deadline.</p>
       <h4>Data</h4><button class="btn sm red" data-act="resetData">${A.ic('refresh')} Reset semua data demo</button></div>
       <button class="fab" data-act="toggleDemo">${A.ic('flask')} Panel demo</button>`;
   };
@@ -45,5 +45,5 @@ window.App = window.App || {};
   };
   A.acts.advance = d => { A.Store.advance(+d.days); A.toast(`Waktu dimajukan ${d.days} hari.`); A.render(); };
   A.acts.resetClock = () => { A.Store.resetClock(); A.toast('Waktu simulasi dikembalikan.'); A.render(); };
-  A.acts.resetData = () => A.confirm('Reset data demo?', 'Semua perubahan (akun, kebutuhan, partnership) akan dikembalikan ke data awal.', () => { A.Store.reset(); A.ui.tab = {}; A.ui.wizard = null; A.ui.edit = {}; A.ui.draft = {}; A.toast('Data demo direset.'); A.go('/'); A.render(); }, { danger: true, label: 'Reset' });
+  A.acts.resetData = () => A.confirm('Reset data demo?', 'Semua perubahan (akun, kebutuhan, kerja sama) akan dikembalikan ke data awal.', () => { A.Store.reset(); A.ui.tab = {}; A.ui.wizard = null; A.ui.edit = {}; A.ui.draft = {}; A.toast('Data demo direset.'); A.go('/'); A.render(); }, { danger: true, label: 'Reset' });
 })(window.App);
