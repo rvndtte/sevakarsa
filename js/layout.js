@@ -38,7 +38,7 @@ window.App = window.App || {};
   };
 
   A.acts.toggleDemo = () => { A.ui.demoOpen = !A.ui.demoOpen; A.$('#demo').classList.toggle('open', A.ui.demoOpen); };
-  A.acts.logout = () => { A.Store.logout(); A.ui.demoOpen = false; A.toast('Anda telah keluar.'); A.go('/'); };
+  A.acts.logout = async () => { await A.Store.logout(); A.ui.demoOpen = false; A.toast('Anda telah keluar.'); A.go('/'); };
   A.acts.demoLogin = d => {
     const u = A.Store.data.users.find(x => x.email === d.email); A.Store.data.session = u.id; A.Store.save();
     A.ui.tab = {}; A.ui.wizard = null; A.ui.edit = {}; A.toast('Masuk sebagai ' + u.name); A.go(A.home(u)); A.render();

@@ -116,11 +116,33 @@
           <div class="card"><h3>Dokumen verifikasi</h3><div class="col gap8">${me.docs.map(d => `<div class="row">${A.ic('file-text', 'mu')} <span class="sm">${A.esc(d)}</span></div>`).join('')}</div></div></div></div>`;
   });
   A.acts.editUProfile = d => { A.ui.edit.uprofile = d.on === '1'; A.render(); };
-  A.acts.saveUnivProfile = f => A.run(() => {
-    if (!f.name) throw new Error('Nama wajib diisi.');
-    const me = S.me(); S.updateProfile(me.id, { __name: f.name, city: f.city, province: A.CITIES[f.city], about: f.about, fields: f.fields || [], programs: A.csv(f.programs), contactName: f.contactName, phone: f.phone, email: f.email });
-    A.toast('Profil universitas disimpan.');
-  });
+  A.acts.saveUnivProfile = f => {
+    try {
+      if (!f.name) throw new Error('Nama wajib diisi.');
+      const me = S.me();
+      A.run(() => {
+        return S.updateProfile(me.id, {
+          __name: f.name,
+          city: f.city,
+          province: A.CITIES[f.city],
+          about: f.about,
+          fields: f.fields || [],
+          programs: A.csv(f.programs),
+          contactName: f.contactName,
+          phone: f.phone,
+          email: f.email,
+        }).then(() => {
+          A.ui.edit.uprofile = false;
+          A.toast('Profil universitas disimpan.');
+          A.render();
+        }).catch(error => {
+          A.toast(error.message || 'Gagal menyimpan profil universitas.', 'err');
+        });
+      });
+    } catch (error) {
+      A.toast(error.message || 'Gagal menyimpan profil universitas.', 'err');
+    }
+  };
   A.acts.addHist = f => A.run(() => { S.addHistory(S.me().id, f); A.toast('Program ditambahkan.'); });
   A.acts.delHist = d => A.run(() => S.delHistory(S.me().id, d.id));
 })(window.App);

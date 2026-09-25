@@ -102,8 +102,15 @@
     </div></div>`;
   }, 'public');
   A.acts.setLoginRole = v => { A.ui.loginRole = v; };
-  A.acts.login = f => {
-    try { const u = A.Store.login(f.email, f.password, f.role); A.toast('Selamat datang, ' + u.name); A.go(A.home(u)); A.render(); } catch (e) { A.toast(e.message, 'err'); }
+  A.acts.login = async f => {
+    try {
+      const u = await A.Store.login(f.email, f.password, f.role);
+      A.toast('Selamat datang, ' + u.name);
+      A.go(A.home(u));
+      A.render();
+    } catch (e) {
+      A.toast(e.message, 'err');
+    }
   };
 
   /* ---------- register ---------- */
@@ -124,7 +131,16 @@
       <p class="center mu mt16">Sudah punya akun? <a href="#/login" class="b" style="color:var(--green-500)">Masuk</a></p></div></div>`;
   }, 'public');
   A.acts.setRegRole = v => { A.ui.regRole = v; A.render(); };
-  A.acts.register = f => { try { const u = A.Store.register(f); A.ui.registered = u.id; A.go('/registered'); A.render(); } catch (e) { A.toast(e.message, 'err'); } };
+  A.acts.register = async f => {
+    try {
+      const u = await A.Store.register(f);
+      A.ui.registered = u.id;
+      A.go('/registered');
+      A.render();
+    } catch (e) {
+      A.toast(e.message, 'err');
+    }
+  };
 
   A.route('/registered', null, () => {
     const u = A.Store.user(A.ui.registered);

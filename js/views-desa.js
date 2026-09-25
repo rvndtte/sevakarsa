@@ -155,9 +155,35 @@
           <div class="card"><h3>Dokumen verifikasi</h3><div class="col gap8">${me.docs.map(d => `<div class="row">${A.ic('file-text', 'mu')} <span class="sm">${A.esc(d)}</span></div>`).join('')}</div></div></div></div>`;
   });
   A.acts.editProfile = d => { A.ui.edit.profile = d.on === '1'; A.render(); };
-  A.acts.saveDesaProfile = f => A.run(() => {
-    if (!f.name) throw new Error('Nama desa wajib diisi.');
-    const me = S.me(); S.updateProfile(me.id, { __name: f.name.startsWith('Desa ') ? f.name : 'Desa ' + f.name, kecamatan: f.kecamatan, city: f.city, province: A.CITIES[f.city], population: f.population, area: f.area, umkm: f.umkm, about: f.about, potentials: A.csv(f.potentials), facilities: A.csv(f.facilities), contactName: f.contactName, phone: f.phone, email: f.email });
-    A.ui.edit.profile = false; A.toast('Profil desa disimpan.');
-  });
+  A.acts.saveDesaProfile = f => {
+    try {
+      if (!f.name) throw new Error('Nama desa wajib diisi.');
+      const me = S.me();
+      A.run(() => {
+        return S.updateProfile(me.id, {
+          __name: f.name.startsWith('Desa ') ? f.name : 'Desa ' + f.name,
+          kecamatan: f.kecamatan,
+          city: f.city,
+          province: A.CITIES[f.city],
+          population: f.population,
+          area: f.area,
+          umkm: f.umkm,
+          about: f.about,
+          potentials: A.csv(f.potentials),
+          facilities: A.csv(f.facilities),
+          contactName: f.contactName,
+          phone: f.phone,
+          email: f.email,
+        }).then(() => {
+          A.ui.edit.profile = false;
+          A.toast('Profil desa disimpan.');
+          A.render();
+        }).catch(error => {
+          A.toast(error.message || 'Gagal menyimpan profil desa.', 'err');
+        });
+      });
+    } catch (error) {
+      A.toast(error.message || 'Gagal menyimpan profil desa.', 'err');
+    }
+  };
 })(window.App);

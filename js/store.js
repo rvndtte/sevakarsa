@@ -6,9 +6,68 @@
 window.App = window.App || {};
 (function (A) {
   const KEY = 'sumbangruang.demo.v2', DAY = A.DAY, RESPONSE_DAYS = 7, NUDGE_DAYS = 5, MAX_REVISIONS = 2, VERSION = 5, MAX_ACTIVE = 5;
+  const DEFAULT_API_BASES = ['http://localhost:3000', 'http://localhost:3002', 'http://localhost:3001'];
+  let API_BASE = DEFAULT_API_BASES[0];
   const LOCKED = ['requested', 'connected', 'matched'];
+
+  async function resolveApiBase() {
+    for (const base of DEFAULT_API_BASES) {
+      try {
+        const response = await fetch(`${base}/api/health`, { method: 'GET', mode: 'cors', cache: 'no-store' });
+        if (!response.ok) continue;
+        const payload = await response.json().catch(() => null);
+        if (payload && (payload.service === 'sevakarsa-backend' || payload.status === 'ok')) {
+          API_BASE = base;
+          return base;
+        }
+      } catch (error) {
+        // Try the next port.
+      }
+    }
+
+    const fallbackBase = DEFAULT_API_BASES.includes('http://localhost:3002') ? 'http://localhost:3002' : DEFAULT_API_BASES[0];
+    API_BASE = fallbackBase;
+    return fallbackBase;
+  }
+  resolveApiBase().catch(() => {});
   let D = null;
   A.LOCKED = LOCKED; A.MAX_ACTIVE = MAX_ACTIVE; A.MAX_REVISIONS = MAX_REVISIONS;
+
+  async function apiJson(url, options = {}) {
+    const resolvedBase = await resolveApiBase();
+    let finalUrl = url;
+
+    if (typeof url === 'string' && /^https?:\/\//i.test(url)) {
+      try {
+        const parsed = new URL(url);
+        if (parsed.hostname === 'localhost' || parsed.hostname === '127.0.0.1') {
+          finalUrl = `${resolvedBase}${parsed.pathname}${parsed.search}`;
+        }
+      } catch (error) {
+        finalUrl = url;
+      }
+    } else if (typeof url === 'string') {
+      finalUrl = `${resolvedBase}${url.startsWith('/') ? url : `/${url}`}`;
+    }
+
+    const response = await fetch(finalUrl, {
+      credentials: 'include',
+      mode: 'cors',
+      headers: { 'Content-Type': 'application/json', ...(options.headers || {}) },
+      ...options,
+    });
+
+    const text = await response.text();
+    let payload = null;
+    try { payload = text ? JSON.parse(text) : null; } catch { payload = { error: text || 'Request failed' }; }
+
+    if (!response.ok) {
+      const errorMessage = payload?.error || `Request failed (${response.status})`;
+      throw new Error(errorMessage);
+    }
+
+    return payload;
+  }
 
   /* ------------------------------------------------------------------ seed */
   function seed() {
@@ -77,7 +136,7 @@ window.App = window.App || {};
       { ts: t - 5 * DAY, icon: 'user-plus', text: 'Koordinator diundang: Bu Dewi Lestari (Monitoring Kualitas Air)' },
       { ts: t - 37 * DAY, icon: 'hourglass-empty', text: 'Kedaluwarsa: Pelatihan Literasi Digital' }
     ];
-    return { v: VERSION, clock: 0, session: null, users, problems, partnerships, notifs, log };
+    return { v: VERSION, clock: 0, session: null, sessionUser: null, users, problems, partnerships, notifs, log };
   }
 
   /* --------------------------------------------------------------- storage */
@@ -89,11 +148,110 @@ window.App = window.App || {};
   }
   A.now = () => Date.now() + (D ? D.clock || 0 : 0);
   const S = A.Store = { load, save, get data() { return D; } };
-  S.reset = () => { D = seed(); D.clock = 0; save(); };
+  S.reset = () => { D = seed(); D.clock = 0; D.sessionUser = null; save(); };
+
+  function normalizeProfile(rawProfile = {}, rawUser = {}) {
+    const profile = rawProfile || {};
+    const role = String(profile.role || rawUser.user_metadata?.role || 'desa').toLowerCase();
+    const name = String(profile.nama || rawUser.user_metadata?.nama || rawUser.email || 'Pengguna').trim();
+    const city = profile.kota || profile.city || 'Kab. Malang';
+    const province = profile.provinsi || profile.province || 'Jawa Timur';
+    return {
+      id: rawUser.id || profile.user_id || profile.id,
+      role,
+      email: rawUser.email || profile.email_kontak || profile.email || '',
+      name,
+      verified: profile.status_verifikasi === 'approved' ? 'approved' : profile.status_verifikasi === 'rejected' ? 'rejected' : 'pending',
+      createdAt: Date.now(),
+      profile: {
+        ...profile,
+        city,
+        province,
+        about: profile.tentang || profile.about || '',
+        contactName: profile.nama_kontak || profile.contactName || name,
+        phone: profile.nomor_hp || profile.phone || '',
+        email: profile.email_kontak || profile.email || rawUser.email || '',
+        kecamatan: profile.kecamatan || '',
+        population: profile.jumlah_penduduk ?? profile.population ?? '',
+        area: profile.luas_km2 ?? profile.area ?? '',
+        umkm: profile.jumlah_umkm ?? profile.umkm ?? '',
+        potentials: Array.isArray(profile.potensi) ? profile.potensi : (Array.isArray(profile.potentials) ? profile.potentials : []),
+        facilities: Array.isArray(profile.fasilitas) ? profile.fasilitas : (Array.isArray(profile.facilities) ? profile.facilities : []),
+        fields: Array.isArray(profile.bidang_keahlian) ? profile.bidang_keahlian : (Array.isArray(profile.fields) ? profile.fields : []),
+        programs: Array.isArray(profile.program_studi) ? profile.program_studi : (Array.isArray(profile.programs) ? profile.programs : []),
+        history: Array.isArray(profile.program_tercatat) ? profile.program_tercatat : (Array.isArray(profile.history) ? profile.history : []),
+      },
+    };
+  }
+
+  S.syncProblemsFromBackend = async () => {
+    if (!D || !D.session) return [];
+
+    try {
+      const payload = await apiJson(`${API_BASE}/api/kebutuhan`);
+      const remoteProblems = Array.isArray(payload?.data) ? payload.data.map(item => ({
+        id: item.id,
+        desaId: item.desaId || item.desa?.id || D.session,
+        title: item.title || '',
+        category: item.category || 'Teknologi',
+        desc: item.desc || '',
+        condition: item.condition || '',
+        need: item.need || '',
+        target: item.target || '',
+        duration: Number(item.duration || 2),
+        skills: Array.isArray(item.skills) ? item.skills : [],
+        teamMin: Number(item.teamMin || 3),
+        teamMax: Number(item.teamMax || 5),
+        city: item.city || 'Kab. Malang',
+        province: item.province || 'Jawa Timur',
+        status: item.status || 'draft',
+        createdAt: item.createdAt || Date.now(),
+        deadline: item.deadline || Date.now() + 30 * DAY,
+        partnershipId: null,
+      })) : [];
+
+      if (!remoteProblems.length) return [];
+
+      const remoteIds = new Set(remoteProblems.map(item => item.id));
+      const merged = [...D.problems.filter(problem => !remoteIds.has(problem.id)), ...remoteProblems];
+      D.problems = merged;
+      save();
+      return remoteProblems;
+    } catch (error) {
+      console.warn('Problem sync from backend failed:', error);
+      return [];
+    }
+  };
+
+  S.refreshSession = async () => {
+    try {
+      const data = await apiJson(`${API_BASE}/api/auth/me`);
+      if (!data?.user) return D.sessionUser;
+      const normalized = normalizeProfile(data.profile, data.user);
+      D.sessionUser = normalized;
+      D.session = normalized.id;
+      save();
+      await S.syncProblemsFromBackend();
+      return normalized;
+    } catch (error) {
+      console.warn('Session refresh failed:', error);
+      return D.sessionUser;
+    }
+  };
 
   /* ---------------------------------------------------------------- lookups */
-  S.user = id => D.users.find(x => x.id === id);
-  S.me = () => D.session ? S.user(D.session) : null;
+  S.user = id => {
+    if (!id) return null;
+    const local = D.users.find(x => x.id === id);
+    if (local) return local;
+    if (D.sessionUser && D.sessionUser.id === id) return D.sessionUser;
+    return null;
+  };
+  S.me = () => {
+    if (!D.session) return null;
+    if (D.sessionUser && D.sessionUser.id === D.session) return D.sessionUser;
+    return S.user(D.session);
+  };
   S.problem = id => D.problems.find(x => x.id === id);
   S.pship = id => D.partnerships.find(x => x.id === id);
   S.problemsOf = desaId => D.problems.filter(p => p.desaId === desaId);
@@ -116,17 +274,79 @@ window.App = window.App || {};
   const unlock = (p, why) => { p.status = 'available'; p.partnershipId = null; logAct('lock-open', `Kebutuhan terbuka kembali: ${p.title} (${why})`); };
 
   /* ------------------------------------------------------------------- auth */
-  S.login = (email, password, role) => {
-    const u = D.users.find(x => x.email.toLowerCase() === String(email).toLowerCase());
-    if (!u || u.password !== password) fail('Email atau kata sandi salah.');
+  S.login = async (email, password, role) => {
+    const emailValue = String(email || '').trim();
+    const passwordValue = String(password || '');
+
+    try {
+      const data = await apiJson(`${API_BASE}/api/auth/login`, {
+        method: 'POST',
+        body: JSON.stringify({ email: emailValue, password: passwordValue }),
+      });
+
+      if (data?.user) {
+        const user = data.user;
+        const profile = data.profile || {};
+        const normalized = normalizeProfile(profile, user);
+        const fallbackUser = {
+          ...normalized,
+          docs: [],
+          saved: [],
+          vlog: [],
+        };
+        D.sessionUser = fallbackUser;
+        D.session = fallbackUser.id;
+        save();
+        await S.syncProblemsFromBackend();
+        return fallbackUser;
+      }
+    } catch (error) {
+      console.warn('Backend auth unavailable, fallback to local demo login:', error);
+    }
+
+    const u = D.users.find(x => x.email.toLowerCase() === emailValue.toLowerCase());
+    if (!u || u.password !== passwordValue) fail('Email atau kata sandi salah.');
     const RL = { desa: 'Desa', univ: 'Universitas', admin: 'Super Admin' };
     if (role && u.role !== role) fail(`Akun ini terdaftar sebagai ${RL[u.role]}, bukan ${RL[role]}. Pilih peran yang sesuai.`);
     if (u.verified === 'pending') fail('Akun Anda masih menunggu verifikasi Super Admin (1–2 hari kerja).');
     if (u.verified === 'rejected') fail('Verifikasi akun ditolak. Hubungi admin untuk informasi lebih lanjut.');
+    D.sessionUser = null;
     D.session = u.id; save(); return u;
   };
-  S.logout = () => { D.session = null; save(); };
-  S.register = f => {
+  S.logout = async () => {
+    try {
+      await apiJson(`${API_BASE}/api/auth/logout`, { method: 'POST' });
+    } catch (error) {
+      console.warn('Backend logout unavailable:', error);
+    }
+    D.sessionUser = null;
+    D.session = null; save();
+  };
+  S.register = async f => {
+    const payload = {
+      email: String(f.email || '').trim(),
+      password: String(f.password || ''),
+      role: String(f.role || 'desa').trim().toLowerCase(),
+      nama: String(f.name || '').trim(),
+      kota: f.city || null,
+      provinsi: null,
+      alamat: null,
+      nomor_hp: f.phone || null,
+    };
+
+    try {
+      const response = await apiJson(`${API_BASE}/api/auth/register`, {
+        method: 'POST',
+        body: JSON.stringify(payload),
+      });
+
+      if (response?.success) {
+        return { id: response.user?.id, role: payload.role, email: payload.email, name: payload.nama, verified: 'pending' };
+      }
+    } catch (error) {
+      console.warn('Backend register unavailable, fallback to local demo register:', error);
+    }
+
     if (!f.name || !f.email || !f.password) fail('Lengkapi nama, email, dan kata sandi.');
     if (f.password.length < 6) fail('Kata sandi minimal 6 karakter.');
     if (D.users.some(x => x.email.toLowerCase() === f.email.toLowerCase())) fail('Email sudah terdaftar.');
@@ -152,7 +372,77 @@ window.App = window.App || {};
     logAct(decision === 'approve' ? 'user-check' : 'user-x', `${u.name} ${decision === 'approve' ? 'diverifikasi' : 'ditolak verifikasinya'}`);
     save();
   };
-  S.updateProfile = (userId, patch) => { const u = S.user(userId); Object.assign(u.profile, patch); if (patch.__name) { u.name = patch.__name; delete u.profile.__name; } save(); };
+  S.updateProfile = async (userId, patch) => {
+    const u = S.user(userId);
+    if (!u) fail('Akun tidak ditemukan.');
+
+    const role = String(u.role || 'desa').toLowerCase();
+    const profile = { ...(u.profile || {}) };
+    Object.assign(profile, patch);
+    if (patch.__name) {
+      profile.__name = patch.__name;
+    }
+
+    const payload = role === 'univ' ? {
+      nama: patch.__name || u.name,
+      kota: profile.city || u.profile?.city || null,
+      provinsi: profile.province || u.profile?.province || null,
+      tentang: profile.about || null,
+      bidang_keahlian: Array.isArray(profile.fields) ? profile.fields : [],
+      program_studi: Array.isArray(profile.programs) ? profile.programs : [],
+      program_tercatat: Array.isArray(profile.history) ? profile.history : [],
+      email_kontak: profile.email || u.email || null,
+      nomor_hp: profile.phone || null,
+    } : {
+      nama: patch.__name || u.name,
+      kota: profile.city || u.profile?.city || null,
+      provinsi: profile.province || u.profile?.province || null,
+      kecamatan: profile.kecamatan || null,
+      jumlah_penduduk: profile.population || null,
+      luas_km2: profile.area || null,
+      jumlah_umkm: profile.umkm || null,
+      tentang: profile.about || null,
+      potensi: Array.isArray(profile.potentials) ? profile.potentials : [],
+      fasilitas: Array.isArray(profile.facilities) ? profile.facilities : [],
+      nama_kontak: profile.contactName || null,
+      email_kontak: profile.email || u.email || null,
+      nomor_hp: profile.phone || null,
+    };
+
+    const endpoint = role === 'univ' ? `${API_BASE}/api/universitas` : `${API_BASE}/api/desa`;
+    const response = await apiJson(endpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+
+    const serverProfile = response?.data?.profile || response?.profile || {};
+    const normalized = normalizeProfile(serverProfile, {
+      id: u.id,
+      email: serverProfile.email_kontak || u.email,
+      user_metadata: { role, nama: serverProfile.nama || u.name },
+    });
+
+    const updatedUser = {
+      ...u,
+      ...normalized,
+      name: normalized.name || u.name,
+      profile: {
+        ...(u.profile || {}),
+        ...(normalized.profile || {}),
+        ...profile,
+        city: normalized.profile?.city || profile.city || u.profile?.city,
+        province: normalized.profile?.province || profile.province || u.profile?.province,
+      },
+    };
+    delete updatedUser.profile.__name;
+
+    const idx = D.users.findIndex(x => x.id === userId);
+    if (idx >= 0) D.users[idx] = updatedUser;
+    if (D.session === userId) D.sessionUser = updatedUser;
+    save();
+    return updatedUser;
+  };
   S.toggleSave = (userId, problemId) => { const u = S.user(userId); u.saved = u.saved || []; const i = u.saved.indexOf(problemId); i >= 0 ? u.saved.splice(i, 1) : u.saved.push(problemId); save(); return i < 0; };
   S.addHistory = (userId, h) => { if (!h.title) fail('Judul program wajib diisi.'); S.user(userId).profile.history.push({ id: A.uid('h'), title: h.title, year: h.year || '-', desa: h.desa || '-', result: h.result || '-' }); save(); };
   S.delHistory = (userId, id) => { const pr = S.user(userId).profile; pr.history = pr.history.filter(x => x.id !== id); save(); };
@@ -174,10 +464,58 @@ window.App = window.App || {};
       p.status = 'available'; logAct('plus', `Kebutuhan dipublikasikan: ${p.title}`); notify(desaId, 'status', `Kebutuhan "${p.title}" dipublikasikan`, '#/desa/problem/' + p.id);
       D.users.filter(u => u.role === 'univ' && u.verified === 'approved').forEach(u => notify(u.id, 'status', `Kebutuhan baru dipublikasikan: ${p.title} (${d.name})`, '#/univ/problem/' + p.id));
     } else if (p.status !== 'available') p.status = 'draft';
-    save(); return p;
+    save();
+
+    const payload = {
+      judul: base.title,
+      kategori: base.category,
+      deskripsi: base.desc,
+      kondisi_saat_ini: base.condition,
+      kebutuhan_diharapkan: base.need,
+      target_output: base.target,
+      status: publish ? 'available' : 'draft',
+      kompetensi: base.skills,
+    };
+
+    const endpoint = id ? `${API_BASE}/api/kebutuhan/${id}` : `${API_BASE}/api/kebutuhan`;
+    const method = id ? 'PUT' : 'POST';
+
+    resolveApiBase().then(async (base) => {
+      const resolvedEndpoint = id ? `${base}/api/kebutuhan/${id}` : `${base}/api/kebutuhan`;
+      return fetch(resolvedEndpoint, {
+        method,
+        credentials: 'include',
+        mode: 'cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+    }).then(async response => {
+      const text = await response.text();
+      let json = null;
+      try { json = text ? JSON.parse(text) : null; } catch { json = { error: text || 'Request failed' }; }
+      if (!response.ok) throw new Error(json?.error || 'Gagal menyimpan kebutuhan ke database.');
+      if (json?.data) {
+        const item = json.data;
+        p.id = item.id || p.id;
+        p.title = item.title || p.title;
+        p.category = item.category || p.category;
+        p.desc = item.desc || p.desc;
+        p.condition = item.condition || p.condition;
+        p.need = item.need || p.need;
+        p.target = item.target || p.target;
+        p.status = item.status || p.status;
+        p.skills = Array.isArray(item.skills) ? item.skills : p.skills;
+        if (!id) { D.problems = D.problems.filter(x => x.id !== p.id); D.problems.push(p); }
+        save();
+      }
+    }).catch(error => {
+      console.warn('Backend kebutuhan sync failed, using local demo data:', error);
+    });
+
+    return p;
   };
-  S.deleteProblem = id => { const p = S.problem(id); if (!['draft', 'available', 'expired'].includes(p.status)) fail('Kebutuhan yang diajukan atau berjalan tidak bisa dihapus.'); D.problems = D.problems.filter(x => x.id !== id); save(); };
-  S.republish = id => { const p = S.problem(id); if (p.status !== 'expired') fail('Hanya kebutuhan Expired yang bisa dipublikasikan ulang.'); p.status = 'available'; p.partnershipId = null; p.deadline = A.now() + 30 * DAY; logAct('refresh', `Kebutuhan dipublikasikan ulang: ${p.title}`); save(); };
+  S.deleteProblem = async id => { const p = S.problem(id); if (!['draft', 'available', 'expired'].includes(p.status)) fail('Kebutuhan yang diajukan atau berjalan tidak bisa dihapus.'); D.problems = D.problems.filter(x => x.id !== id); save(); const base = await resolveApiBase(); fetch(`${base}/api/kebutuhan/${id}`, { method: 'DELETE', credentials: 'include', mode: 'cors' }).catch(() => {}); };
+  S.republish = async id => { const p = S.problem(id); if (p.status !== 'expired') fail('Hanya kebutuhan Expired yang bisa dipublikasikan ulang.'); p.status = 'available'; p.partnershipId = null; p.deadline = A.now() + 30 * DAY; logAct('refresh', `Kebutuhan dipublikasikan ulang: ${p.title}`); save(); const base = await resolveApiBase(); fetch(`${base}/api/kebutuhan/${id}`, { method: 'PUT', credentials: 'include', mode: 'cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ status: 'available' }) }).catch(() => {}); };
 
   /* ------------------------------------------------------------ kerja sama (payung) */
   const ACTIVE_PS = ['requested', 'connected', 'matched'];
