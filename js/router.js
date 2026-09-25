@@ -36,6 +36,7 @@ window.App = window.App || {};
     A.tickCountdowns(); A.demoPanel();
     if (A.hero3d) A.hero3d.attach();
     if (A.story3d) A.story3d.attach();
+    if (A.prob3d) A.prob3d.attach();
     if (A.reveal) A.reveal();
     const box = A.$('.msgs'); if (box) box.scrollTop = box.scrollHeight;
     window.scrollTo(0, lastPath === r.path ? y : 0); lastPath = r.path;

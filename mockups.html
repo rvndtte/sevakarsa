@@ -13,7 +13,7 @@
   <span class="f">SumbangRuang</span>
   <a href="#alur">Alur</a>
   <a href="#p1">1 Landing</a><a href="#p2">2 Login</a><a href="#p3">3 Profil Desa</a><a href="#p4">4 Profil Univ</a>
-  <a href="#p5">5 Dash Univ</a><a href="#p6">6 Dash Desa</a><a href="#p7">7 Listing</a><a href="#p8">8 Create</a>
+  <a href="#p5">5 Dash Univ</a><a href="#p6">6 Dash Desa</a><a href="#p7">7 Listing</a><a href="#p8">8 Create</a><a href="#p8b">8b AI Tim</a>
   <a href="#p9">9 Detail</a><a href="#p10">10 Discovery</a><a href="#p11">11 Matching</a><a href="#p12">12 Partnership</a>
   <a href="#p13">13 Diskusi</a><a href="#p14">14 Proposal</a><a href="#p15">15 Review</a><a href="#p16">16 Status</a>
   <a href="#p17">17 Notifikasi</a><a href="#p18">18 Riwayat</a><a href="#p19">19 Admin</a><a href="#p20">20 Verifikasi</a>
@@ -201,7 +201,7 @@
             <div class="rw"><div style="flex:1"><b>Pengelolaan Sampah Organik</b><div class="bar"><i style="width:100%"></i></div></div><span class="tg p">Matched</span><span class="mu sm">—</span></div></div>
         </div>
         <div class="c"><div class="f" style="font-size:14px">Notifikasi &amp; aktivitas</div>
-          <div class="m"><span class="ib s26 ci gr"><i class="ti ti-check"></i></span><div><b>Desa menerima request</b><div class="mu sm">Digitalisasi UMKM · 2 jam lalu</div></div></div>
+          <div class="m"><span class="ib s26 ci gr"><i class="ti ti-check"></i></span><div><b>Diskusi otomatis dimulai</b><div class="mu sm">Digitalisasi UMKM · 2 jam lalu</div></div></div>
           <div class="m" style="margin-top:12px"><span class="ib s26 ci am"><i class="ti ti-clock"></i></span><div><b>Deadline proposal 3 hari</b><div class="mu sm">Monitoring Kualitas Air</div></div></div>
           <div class="m" style="margin-top:12px"><span class="ib s26 ci bl"><i class="ti ti-message"></i></span><div><b>Pesan baru dari Pak Budi</b><div class="mu sm">Kemarin</div></div></div>
           <div class="m" style="margin-top:12px"><span class="ib s26 ci rd"><i class="ti ti-x"></i></span><div><b>Proposal ditolak</b><div class="mu sm">Pengelolaan Sampah · 2 hari lalu</div></div></div></div>
@@ -226,8 +226,8 @@
       </div>
       <div class="g14" style="flex:1">
         <div class="col">
-          <div class="c"><div class="f" style="font-size:14px">Universitas yang tertarik</div>
-            <div class="rw"><div class="av d"></div><div style="flex:1"><b>Universitas Brawijaya</b><div class="mu sm">Digitalisasi UMKM · match 87%</div></div><span class="bt sm">Terima</span></div>
+          <div class="c"><div class="f" style="font-size:14px">Universitas dalam diskusi</div><div class="mu xs">Pengajuan pertama otomatis masuk diskusi, desa tidak menyeleksi.</div>
+            <div class="rw"><div class="av d"></div><div style="flex:1"><b>Universitas Brawijaya</b><div class="mu sm">Digitalisasi UMKM · diskusi otomatis dimulai</div></div><span class="tg a">Diskusi</span></div>
             <div class="rw"><div class="av b"></div><div style="flex:1"><b>Universitas Negeri Malang</b><div class="mu sm">Digitalisasi UMKM · match 74%</div></div><span class="bt o sm">Lihat</span></div></div>
           <div class="c"><div class="f" style="font-size:14px">Proposal masuk</div>
             <div class="rw"><div style="flex:1"><b>Platform Digital UMKM Desa</b><div class="mu sm">Universitas Brawijaya · dikirim hari ini</div></div><span class="tg b">Menunggu review</span></div></div>
@@ -265,32 +265,77 @@
   </div>
 </section>
 
-<!-- 8 CREATE PROBLEM -->
+<!-- 8 CREATE PROBLEM: desa bisa mengajukan beberapa masalah, tiap masalah pilih kategori -->
 <section id="p8">
-  <div class="ph"><b>8</b><span>Create problem</span></div>
+  <div class="ph"><b>8</b><span>Create problem (beberapa masalah + kategori)</span></div>
   <div class="s">
     <div class="sb"><div class="lg"><i class="ti ti-leaf"></i>SumbangRuang</div>
       <div class="ni"><i class="ti ti-home"></i>Beranda</div><div class="ni on"><i class="ti ti-file-text"></i>Kebutuhan Saya</div><div class="ni"><i class="ti ti-heart-handshake"></i>Partnership</div><div class="ni"><i class="ti ti-message"></i>Pesan</div><div class="ni"><i class="ti ti-bell"></i>Notifikasi</div><div class="ni"><i class="ti ti-history"></i>Riwayat</div><div class="ni"><i class="ti ti-user"></i>Profil Desa</div></div>
     <div class="mn">
-      <div><div class="back"><i class="ti ti-arrow-left"></i> Kembali</div><div class="ttl">Buat kebutuhan baru</div></div>
+      <div><div class="back"><i class="ti ti-arrow-left"></i> Kembali</div><div class="ttl">Ajukan kebutuhan</div></div>
       <div class="c stp">
-        <div class="it"><span class="dot ok"><i class="ti ti-check"></i></span>Masalah</div><span class="ln"></span>
-        <div class="it"><span class="dot on">2</span>Kondisi &amp; harapan</div><span class="ln"></span>
-        <div class="it mu"><span class="dot">3</span>Target</div><span class="ln"></span>
-        <div class="it mu"><span class="dot">4</span>Kompetensi</div>
+        <div class="it"><span class="dot on">1</span>Daftar masalah</div><span class="ln"></span>
+        <div class="it mu"><span class="dot">2</span>Kondisi &amp; harapan</div><span class="ln"></span>
+        <div class="it mu"><span class="dot">3</span>Target &amp; durasi</div><span class="ln"></span>
+        <div class="it mu"><span class="dot">4</span>Kompetensi &amp; tim</div>
       </div>
       <div class="g16">
-        <div class="c p14"><div class="f" style="font-size:15px">Kondisi saat ini &amp; kebutuhan</div>
-          <div class="lb">Kondisi desa saat ini *</div><div class="in" style="height:64px">UMKM belum memiliki toko online, pemasaran masih dari mulut ke mulut...</div>
-          <div class="lb">Kebutuhan yang diharapkan *</div><div class="in" style="height:64px">Platform sederhana untuk memajang produk dan menerima pesanan.</div>
-          <div class="g2"><div><div class="lb">Kategori *</div><div class="in row sp">Teknologi<i class="ti ti-chevron-down"></i></div></div><div><div class="lb">Durasi *</div><div class="in row sp">2 bulan<i class="ti ti-chevron-down"></i></div></div></div>
-          <div class="lb">Lokasi</div><div class="in row" style="gap:6px"><i class="ti ti-map-pin"></i>Desa Sumber Rejeki, Kab. Malang</div></div>
         <div class="col">
-          <div class="c p14 tip"><div class="row" style="gap:8px;align-items:flex-start"><i class="ti ti-bulb" style="color:var(--green-500);font-size:18px"></i><div><b>Tips</b><div class="mu sm" style="margin-top:2px">Jelaskan masalah dengan contoh nyata agar kampus paham konteksnya.</div></div></div></div>
-          <div class="c p14"><div class="f" style="font-size:14px">Ringkasan</div><div class="col" style="gap:6px;margin-top:8px"><div class="row sp"><span class="mu">Judul</span><b>Digitalisasi UMKM</b></div><div class="row sp"><span class="mu">Status</span><span class="tg">Draft</span></div></div></div>
+          <div class="c p14"><div class="f" style="font-size:15px">Masalah apa saja yang ingin dibantu?</div><div class="mu sm">Tambahkan lebih dari satu masalah. Tiap masalah tampil sebagai kebutuhan terpisah dan bisa dikerjakan universitas berbeda.</div></div>
+          <div class="c p14" style="background:var(--cream-50)"><div class="row sp"><b>Masalah 1</b><span class="mu sm"><i class="ti ti-trash"></i> Hapus</span></div>
+            <div class="lb">Judul masalah *</div><div class="in" style="color:var(--text)">Digitalisasi UMKM Desa</div>
+            <div class="lb">Kategori masalah *</div><div class="chips" style="margin-top:6px"><span class="ch on"><i class="ti ti-device-laptop"></i>Teknologi</span><span class="ch"><i class="ti ti-plant-2"></i>Pertanian</span><span class="ch"><i class="ti ti-recycle"></i>Lingkungan</span><span class="ch"><i class="ti ti-building-store"></i>UMKM</span><span class="ch"><i class="ti ti-heartbeat"></i>Kesehatan</span><span class="ch"><i class="ti ti-school"></i>Pendidikan</span></div>
+            <div class="lb">Uraian singkat</div><div class="in" style="height:44px">UMKM belum punya toko online, pemasaran masih dari mulut ke mulut.</div></div>
+          <div class="c p14" style="background:var(--cream-50)"><div class="row sp"><b>Masalah 2</b><span class="mu sm"><i class="ti ti-trash"></i> Hapus</span></div>
+            <div class="lb">Judul masalah *</div><div class="in" style="color:var(--text)">Pengolahan limbah kulit kopi</div>
+            <div class="lb">Kategori masalah *</div><div class="chips" style="margin-top:6px"><span class="ch"><i class="ti ti-device-laptop"></i>Teknologi</span><span class="ch"><i class="ti ti-plant-2"></i>Pertanian</span><span class="ch on"><i class="ti ti-recycle"></i>Lingkungan</span><span class="ch"><i class="ti ti-building-store"></i>UMKM</span><span class="ch"><i class="ti ti-heartbeat"></i>Kesehatan</span><span class="ch"><i class="ti ti-school"></i>Pendidikan</span></div>
+            <div class="lb">Uraian singkat</div><div class="in" style="height:44px">Kulit kopi menumpuk saat panen raya dan belum dimanfaatkan.</div></div>
+          <div class="c p14" style="border-style:dashed;text-align:center"><span class="bt o lg2"><i class="ti ti-plus"></i> Tambah masalah lain</span><div class="mu xs" style="margin-top:6px">Maksimal 5 kebutuhan aktif per desa</div></div>
+        </div>
+        <div class="col">
+          <div class="c p14 tip"><div class="row" style="gap:8px;align-items:flex-start"><i class="ti ti-bulb" style="color:var(--green-500);font-size:18px"></i><div><b>Tips</b><div class="mu sm" style="margin-top:2px">Satu kartu untuk satu masalah. Pilih kategori yang paling dekat agar universitas yang relevan mudah menemukannya.</div></div></div></div>
+          <div class="c p14"><div class="f" style="font-size:14px">Ringkasan</div><div class="col" style="gap:8px;margin-top:8px">
+            <div class="row sp"><span>Digitalisasi UMKM Desa</span><span class="tg b">Teknologi</span></div>
+            <div class="row sp"><span>Limbah kulit kopi</span><span class="tg">Lingkungan</span></div>
+            <div class="row sp"><span class="mu">Total masalah</span><b>2 / 5</b></div></div></div>
         </div>
       </div>
-      <div class="row sp"><span class="bt o lg2">Simpan draft</span><div class="row" style="gap:8px"><span class="bt o lg2">Kembali</span><span class="bt lg2">Lanjut <i class="ti ti-arrow-right"></i></span></div></div>
+      <div class="row sp"><span class="bt o lg2">Simpan draft</span><div class="row" style="gap:8px"><span class="bt lg2">Lanjut isi detail masalah 1 <i class="ti ti-arrow-right"></i></span></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- 8b KOMPETENSI & TIM + SARAN AI -->
+<section id="p8b">
+  <div class="ph"><b>8b</b><span>Kompetensi &amp; komposisi tim (saran AI)</span></div>
+  <div class="s">
+    <div class="sb"><div class="lg"><i class="ti ti-leaf"></i>SumbangRuang</div>
+      <div class="ni"><i class="ti ti-home"></i>Beranda</div><div class="ni on"><i class="ti ti-file-text"></i>Kebutuhan Saya</div><div class="ni"><i class="ti ti-heart-handshake"></i>Partnership</div><div class="ni"><i class="ti ti-message"></i>Pesan</div><div class="ni"><i class="ti ti-bell"></i>Notifikasi</div><div class="ni"><i class="ti ti-history"></i>Riwayat</div><div class="ni"><i class="ti ti-user"></i>Profil Desa</div></div>
+    <div class="mn">
+      <div><div class="back"><i class="ti ti-arrow-left"></i> Kembali</div><div class="ttl">Masalah 1: Digitalisasi UMKM Desa</div></div>
+      <div class="c stp">
+        <div class="it"><span class="dot ok"><i class="ti ti-check"></i></span>Daftar masalah</div><span class="ln"></span>
+        <div class="it"><span class="dot ok"><i class="ti ti-check"></i></span>Kondisi &amp; harapan</div><span class="ln"></span>
+        <div class="it"><span class="dot ok"><i class="ti ti-check"></i></span>Target &amp; durasi</div><span class="ln"></span>
+        <div class="it"><span class="dot on">4</span>Kompetensi &amp; tim</div>
+      </div>
+      <div class="g16">
+        <div class="col">
+          <div class="c p14" style="background:#F1ECFA;border-color:#D6CBEB"><div class="row sp"><div class="row" style="gap:8px"><span class="ib s30" style="background:var(--purple-100);color:var(--purple-700)"><i class="ti ti-sparkles"></i></span><div><b>Saran AI: komposisi tim</b><div class="mu xs">Dari kategori, judul, dan uraian masalah</div></div></div><span class="bt sm o"><i class="ti ti-refresh"></i> Ulangi</span></div>
+            <div class="sm" style="margin-top:10px">Kata kunci: <b>toko online, UMKM, pemasaran</b>. Kategori <b>Teknologi</b>, disarankan:</div>
+            <div class="rw"><i class="ti ti-user"></i><div style="flex:1">Web Development</div><span class="tg b">2 orang</span></div>
+            <div class="rw"><i class="ti ti-user"></i><div style="flex:1">UI/UX Design</div><span class="tg b">1 orang</span></div>
+            <div class="rw"><i class="ti ti-user"></i><div style="flex:1">Pemasaran Digital</div><span class="tg b">1 orang</span></div>
+            <div class="rw"><i class="ti ti-user"></i><div style="flex:1">Bisnis</div><span class="tg b">1 orang</span></div>
+            <div class="row sp" style="margin-top:10px"><b>Total 5 anggota · 2 bulan</b><span class="bt lg2"><i class="ti ti-check"></i> Terapkan saran</span></div></div>
+          <div class="c p14"><div class="f" style="font-size:14px">Kompetensi dibutuhkan (bisa diubah)</div><div class="chips" style="margin-top:8px"><span class="ch on">Web Development</span><span class="ch on">UI/UX Design</span><span class="ch on">Pemasaran Digital</span><span class="ch on">Bisnis</span><span class="ch">Data Analysis</span><span class="ch">Desain Grafis</span></div>
+            <div class="g2" style="margin-top:8px"><div><div class="lb">Anggota minimal</div><div class="in">5</div></div><div><div class="lb">Anggota maksimal</div><div class="in">7</div></div></div></div>
+        </div>
+        <div class="col">
+          <div class="c p14"><div class="f" style="font-size:14px">Masalah lain</div><div class="col" style="gap:8px;margin-top:8px"><div class="row sp"><span>1. Digitalisasi UMKM</span><span class="tg n">Sedang diisi</span></div><div class="row sp"><span>2. Limbah kulit kopi</span><span class="tg a">Belum diisi</span></div></div></div>
+        </div>
+      </div>
+      <div class="row sp"><span class="bt o lg2">Simpan draft</span><span class="bt lg2">Lanjut ke masalah 2 <i class="ti ti-arrow-right"></i></span></div>
     </div>
   </div>
 </section>
@@ -383,7 +428,7 @@
       <div class="g15">
         <div class="c p14"><div class="f" style="font-size:14px">Tahapan partnership</div>
           <div class="tlrow"><div class="dot ok"><i class="ti ti-check"></i></div><div><b>Pengajuan partnership</b><div class="mu sm">10 Juli · request dikirim oleh Universitas Brawijaya</div></div></div>
-          <div class="tlrow"><div class="dot ok"><i class="ti ti-check"></i></div><div><b>Desa menerima request</b><div class="mu sm">11 Juli · Pak Budi menyetujui</div></div></div>
+          <div class="tlrow"><div class="dot ok"><i class="ti ti-check"></i></div><div><b>Diskusi dimulai otomatis</b><div class="mu sm">10 Juli · tanpa seleksi desa (anti-bias)</div></div></div>
           <div class="tlrow"><div class="dot on">3</div><div><b>Reservation &amp; diskusi (1 minggu)</b><div class="mu sm">Berjalan · sisa 5 hari 14 jam</div></div></div>
           <div class="tlrow"><div class="dot">4</div><div><b class="mu">Pengajuan &amp; review proposal</b></div></div>
           <div class="tlrow"><div class="dot">5</div><div><b class="mu">Partnership matched</b></div></div>
@@ -512,7 +557,7 @@
       <div class="chips"><span class="ch on">Semua</span><span class="ch">Partnership</span><span class="ch">Proposal</span><span class="ch">Diskusi</span><span class="ch">Deadline</span><span class="ch">Status</span></div>
       <div class="gl">HARI INI</div>
       <div class="c p0">
-        <div class="it2"><div class="ib ci gr"><i class="ti ti-heart-handshake"></i></div><div style="flex:1"><b>Desa menerima request partnership</b><div class="mu sm">Digitalisasi UMKM Desa · Desa Sumber Rejeki</div></div><span class="mu xs">2 jam</span><span class="un"></span></div>
+        <div class="it2"><div class="ib ci gr"><i class="ti ti-heart-handshake"></i></div><div style="flex:1"><b>Diskusi dimulai otomatis untuk kebutuhan Anda</b><div class="mu sm">Digitalisasi UMKM Desa · Desa Sumber Rejeki</div></div><span class="mu xs">2 jam</span><span class="un"></span></div>
         <div class="it2"><div class="ib ci am"><i class="ti ti-clock"></i></div><div style="flex:1"><b>Deadline proposal tinggal 3 hari</b><div class="mu sm">Monitoring Kualitas Air</div></div><span class="mu xs">5 jam</span><span class="un"></span></div>
       </div>
       <div class="gl">KEMARIN</div>

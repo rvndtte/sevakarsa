@@ -6,6 +6,13 @@
   const problems = [['unlink', 'c-red', 'Kebutuhan desa tidak sampai ke kampus', 'Masalah desa hanya diketahui lewat kenalan atau jalur informal, sehingga banyak kampus tidak pernah tahu apa yang sebenarnya dibutuhkan.'], ['target-arrow', 'c-amber', 'Program KKN tidak tepat sasaran', 'Tema dan kegiatan sering ditentukan dari sisi kampus, bukan dari masalah nyata desa, sehingga hasilnya kurang terasa manfaatnya.'], ['users-group', 'c-blue', 'Kompetensi mahasiswa tidak dipertemukan', 'Desa yang butuh keahlian tertentu tidak punya cara mudah menemukan tim yang sesuai, dan sebaliknya.'], ['file-off', 'c-purple', 'Tidak ada jejak & keberlanjutan', 'Setelah KKN selesai, dokumentasi tercecer dan program tidak dilanjutkan, sehingga desa berikutnya mengulang dari nol.']];
   const sdgs = [['4', 'Pendidikan Berkualitas', '#C5192D', 'KKN menjadi pembelajaran kontekstual: mahasiswa menerapkan keilmuan pada masalah nyata.'], ['8', 'Pekerjaan Layak & Pertumbuhan Ekonomi', '#A21942', 'Solusi berbasis kompetensi mendorong ekonomi dan usaha lokal desa.'], ['10', 'Berkurangnya Kesenjangan', '#DD1367', 'Desa di mana pun punya kesempatan yang sama untuk terlihat dan dibantu kampus.'], ['11', 'Kota & Permukiman Berkelanjutan', '#FD9D24', 'Perbaikan infrastruktur, lingkungan, dan layanan dasar permukiman desa.'], ['17', 'Kemitraan untuk Mencapai Tujuan', '#19486A', 'Inti platform: kemitraan desa, universitas, dan mahasiswa yang terukur dan terdokumentasi.']];
   const impacts = [['target-arrow', 'Tepat sasaran', 'Program dimulai dari kebutuhan yang dinyatakan desa sendiri.'], ['scale', 'Terbuka & adil', 'Setiap desa terlihat oleh banyak universitas, bukan hanya yang punya koneksi.'], ['chart-line', 'Terukur', 'Status, proposal, dan laporan tercatat sehingga dampak bisa dievaluasi.'], ['history', 'Berkelanjutan', 'Riwayat dokumentasi tersimpan sebagai fondasi kolaborasi berikutnya.']];
+  const src = t => `<small class="psrc">${A.ic('info-circle')} ${t}</small>`;
+  const probSlides = [
+    `<div class="ptag">${A.ic('map-2')} Potensi yang luas</div><div class="big" data-n="75753" data-d="0">75.753</div><div class="plab">desa di seluruh Indonesia</div><p class="mu">Setiap desa punya kebutuhan nyata, dan setiap tahun ribuan mahasiswa mencari tempat mengabdi lewat KKN. Potensinya sangat besar, tetapi belum tersalurkan dengan baik.</p>${src('BPS, Potensi Desa 2024 (75.753 desa; 84.276 dengan kelurahan & permukiman transmigrasi)')}`,
+    `<div class="ptag">${A.ic('alert-triangle')} Kesenjangan</div><div class="big" data-n="10463" data-d="0">10.463</div><div class="plab">desa masih tertinggal atau sangat tertinggal</div><p class="mu">Sekitar 1 dari 7 desa belum mencapai status berkembang. Justru desa-desa inilah yang paling membutuhkan tangan dan keahlian dari kampus.</p>${src('Kemendes PDTT, Indeks Desa Membangun 2024: 6.100 tertinggal + 4.363 sangat tertinggal dari 75.265 desa')}`,
+    `<div class="ptag">${A.ic('school')} Tenaga muda</div><div class="big" data-n="8.96" data-d="2">8,96</div><div class="plab">juta mahasiswa di 2.694 perguruan tinggi</div><p class="mu">Kompetensi mahasiswa sangat beragam, namun penempatan KKN sering ditentukan dari sisi kampus, bukan dari masalah dan keahlian yang benar-benar dibutuhkan desa.</p>${src('BPS, 2021 (data nasional terbaru yang kami temukan)')}`,
+    `<div class="ptag">${A.ic('unlink')} Mengapa belum tersalurkan?</div><h3 class="pq">Jembatan antara desa dan kampus masih putus</h3><div class="plist">${problems.map(p => `<div class="prow"><div class="ib s ${p[1]}">${A.ic(p[0])}</div><div><b>${p[2]}</b><div class="mu xs">${p[3]}</div></div></div>`).join('')}</div>${src('Analisis tim SumbangRuang, bukan data statistik resmi')}`
+  ];
   const perks = t => t.map(x => `<div class="row top gap8">${A.ic('circle-check-filled', 'chk')}<span>${x}</span></div>`).join('');
 
   A.route('/', null, () => {
@@ -29,10 +36,10 @@
           <div class="float f2">${A.ic('heart-handshake', 'lm')}<div><div class="b sm">Matched</div><div class="xs mu">Desa ⇄ Universitas</div></div></div>
           <div class="pill">Solusi nyata untuk desa</div></div></div></div>
 
-    <div class="prob" id="problem"><div class="section"><span class="kick">Permasalahan</span><h2>Niat baik KKN belum selalu sampai ke tempat yang tepat</h2>
-      <p class="sub mu">Ribuan mahasiswa turun ke desa setiap tahun, tetapi penyaluran program KKN masih sering terputus dari kebutuhan nyata masyarakat.</p>
-      <div class="g4 mt24 probg">${problems.map(p => `<div class="card pcard"><div class="ib ${p[1]}">${A.ic(p[0])}</div><h3>${p[2]}</h3><p class="mu sm">${p[3]}</p></div>`).join('')}</div>
-</div>
+    <div class="prob" id="problem"><div class="section"><span class="kick">Permasalahan</span><h2>Potensi besar, belum tersalurkan dengan baik</h2>
+      <div class="pstage"><div class="pcol"><div class="pslides">${probSlides.map((x, i) => `<div class="ps ${i ? '' : 'on'}" data-i="${i}">${x}</div>`).join('')}</div>
+        <div class="pnav"><button class="pb" data-act="probGo" data-d="-1" aria-label="Sebelumnya">${A.ic('arrow-left')}</button><div class="pdots">${probSlides.map((_, i) => `<button class="${i ? '' : 'on'}" data-act="probDot" data-i="${i}" aria-label="Slide ${i + 1}"></button>`).join('')}</div><button class="pb" data-act="probGo" data-d="1" aria-label="Berikutnya">${A.ic('arrow-right')}</button><span class="pbar"><i></i></span></div></div>
+        <div class="p3d" aria-hidden="true"></div></div></div>
       <div class="bridge"><b>Bagaimana SumbangRuang menjawabnya?</b><span>${A.ic('arrow-down')}</span></div></div>
 
     <section class="story" id="how"><div class="stick"><div class="story-scene" aria-hidden="true"></div><div class="warm"></div>
@@ -130,8 +137,37 @@
   }, 'public');
   A.acts.adminVerifyDemo = () => { const a = A.Store.data.users.find(x => x.role === 'admin'); A.Store.data.session = a.id; A.Store.save(); A.ui.verifySel = A.ui.registered; A.ui.verifyTab = 'pending'; A.go('/admin/verify'); A.render(); };
 
+  /* carousel section permasalahan */
+  A.acts.probGo = d => A.probState && A.probState.go(A.probState.cur + +d.d);
+  A.acts.probDot = d => A.probState && A.probState.go(+d.i);
+  const initProb = () => {
+    const root = A.$('.pstage'); if (!root) return;
+    clearInterval(A._probTimer);
+    const slides = A.$$('.ps', root), dots = A.$$('.pdots button', root), bar = A.$('.pbar i', root), n = slides.length, reduce = matchMedia('(prefers-reduced-motion:reduce)').matches;
+    const fmt = (v, d) => v.toLocaleString('id-ID', { minimumFractionDigits: d, maximumFractionDigits: d });
+    let cur = -1, hover = false;
+    const count = el => {
+      const to = parseFloat(el.dataset.n), dec = +el.dataset.d; if (reduce) return void (el.textContent = fmt(to, dec));
+      const t0 = performance.now(); const tick = t => { const p = Math.min(1, (t - t0) / 1400); el.textContent = fmt(to * (1 - Math.pow(1 - p, 3)), dec); if (p < 1) requestAnimationFrame(tick); }; requestAnimationFrame(tick);
+    };
+    const go = i => {
+      i = (i + n) % n; if (i === cur) return; cur = i;
+      slides.forEach((el, k) => { el.classList.toggle('on', k === i); el.classList.toggle('before', k < i); });
+      dots.forEach((el, k) => el.classList.toggle('on', k === i));
+      const big = slides[i].querySelector('.big'); if (big) count(big);
+      if (A.prob3d) A.prob3d.set(i);
+      if (bar) { bar.style.animation = 'none'; bar.offsetWidth; bar.style.animation = ''; }
+    };
+    A.probState = { go, get cur() { return cur; } };
+    go(0);
+    A._probTimer = setInterval(() => { if (!root.isConnected) return clearInterval(A._probTimer); const r = root.getBoundingClientRect(); if (!hover && !reduce && r.top < innerHeight * .7 && r.bottom > innerHeight * .3) go(cur + 1); }, 7000);
+    root.addEventListener('pointerenter', () => hover = true); root.addEventListener('pointerleave', () => hover = false);
+    let x0 = null; root.addEventListener('pointerdown', e => { x0 = e.clientX; }); root.addEventListener('pointerup', e => { if (x0 !== null && Math.abs(e.clientX - x0) > 50) go(cur + (e.clientX < x0 ? 1 : -1)); x0 = null; });
+  };
+
   A.reveal = () => {
     if (!A.$('.pub .hero')) return;
+    initProb();
     const reduce = matchMedia('(prefers-reduced-motion:reduce)').matches;
 
     /* hitung naik untuk statistik hero */

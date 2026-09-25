@@ -77,7 +77,7 @@
     else cta = `<button class="btn" disabled>${A.ic('lock')} Terkunci</button>`;
     return `${V.head(A.esc(p.title), `${A.ic('map-pin')} ${A.esc(desa.name)} · ${A.esc(p.city)}`, `${locked ? '' : A.tag(p.status, 'lg')}`, 'Kembali')}
       ${locked ? `<div class="card tight mb" style="background:var(--cream-200)">${A.ic('lock')} <b>${p.status === 'requested' ? 'Kebutuhan ini sedang diajukan universitas lain.' : 'Kebutuhan ini sedang berjalan bersama universitas lain.'}</b> <span class="sm mu">Akan terbuka kembali jika kerja samanya ditolak atau berakhir.</span></div>` : ''}
-      <div class="card row wrap mb"><div class="grow"><div class="b">${locked ? 'Tidak dapat diajukan saat ini' : mine ? 'Anda sudah terlibat di kebutuhan ini' : 'Tertarik membantu desa ini?'}</div><div class="sm mu">${locked ? 'Anda tetap bisa membaca detailnya.' : 'Desa akan menerima request dan memilih untuk melanjutkan ke tahap diskusi (7 hari).'}</div></div>
+      <div class="card row wrap mb"><div class="grow"><div class="b">${locked ? 'Tidak dapat diajukan saat ini' : mine ? 'Anda sudah terlibat di kebutuhan ini' : 'Tertarik membantu desa ini?'}</div><div class="sm mu">${locked ? 'Anda tetap bisa membaca detailnya.' : 'Begitu Anda mengajukan, kebutuhan langsung tereservasi untuk Anda dan masa diskusi 7 hari dimulai. Desa tidak menyeleksi pengajuan.'}</div></div>
         <div class="row wrap">${cta}${locked ? '' : `<button class="btn out" data-act="toggleSave" data-id="${id}">${A.ic(saved ? 'bookmark-filled' : 'bookmark')} ${saved ? 'Tersimpan' : 'Simpan'}</button>`}</div></div>
       ${last && !mine && ['rejected', 'expired', 'declined'].includes(last.status) ? `<div class="card warn tight mb">${A.ic('info-circle')} Pengajuan Anda sebelumnya: ${A.tag(last.status)} — Anda dapat mengajukan lagi jika kebutuhan Available.</div>` : ''}
       <div class="g32 ${locked ? 'locked' : ''}"><div class="col">${V.problemBody(p)}</div>
@@ -85,8 +85,8 @@
   });
   A.acts.applyPship = d => {
     const p = S.problem(d.id);
-    A.modal({ title: 'Ajukan partnership', body: `<p class="mu sm">Untuk <b>${A.esc(p.title)}</b>. Setelah dikirim, kebutuhan ini <b>terkunci</b> untuk universitas lain sampai desa memutuskan. Jika diterima, dimulai diskusi 7 hari.</p><div class="field mt12"><label>Pesan untuk desa</label><textarea id="applymsg" placeholder="Ceritakan singkat pengalaman dan alasan tim Anda tertarik..."></textarea></div>`,
-      actions: [{ label: 'Batal' }, { label: 'Kirim request', cls: '', onClick: () => { const msg = A.$('#applymsg').value; let ps; try { ps = S.requestPartnership(d.id, S.me().id, msg.trim()); } catch (e) { A.toast(e.message, 'err'); return false; } A.toast('Request terkirim ke desa.'); A.go('/partnerships/' + ps.id); A.render(); } }] });
+    A.modal({ title: 'Ajukan partnership', body: `<p class="mu sm">Untuk <b>${A.esc(p.title)}</b>. Setelah dikirim, kebutuhan ini <b>langsung terkunci</b> untuk universitas lain dan <b>diskusi 7 hari dimulai otomatis</b> (desa tidak menerima/menolak pengajuan). Kebutuhan terbuka lagi jika proposal ditolak atau waktu habis.</p><div class="field mt12"><label>Pesan untuk desa</label><textarea id="applymsg" placeholder="Ceritakan singkat pengalaman dan alasan tim Anda tertarik..."></textarea></div>`,
+      actions: [{ label: 'Batal' }, { label: 'Kirim request', cls: '', onClick: () => { const msg = A.$('#applymsg').value; let ps; try { ps = S.requestPartnership(d.id, S.me().id, msg.trim()); } catch (e) { A.toast(e.message, 'err'); return false; } A.toast('Diajukan — masa diskusi 7 hari dimulai.'); A.go('/partnerships/' + ps.id); A.render(); } }] });
   };
 
   /* ================= profil universitas ================= */

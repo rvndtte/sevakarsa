@@ -46,7 +46,7 @@
     const chip = (k, l) => `<button class="chip ${f === k ? 'on' : ''}" data-act="pfilter" data-k="${k}">${l} <span class="n">${all.filter(grp[k]).length}</span></button>`;
     const rows = list.map(ps => {
       const p = S.problem(ps.problemId), o = S.otherParty(ps, me), d = V.deadline(ps), pr = o.profile;
-      const inline = me.role === 'desa' && ps.status === 'requested' ? `<button class="btn sm" data-act="acceptReq" data-id="${ps.id}">Terima</button><button class="btn sm red" data-act="declineReq" data-id="${ps.id}">Tolak</button>` : '';
+      const inline = '';
       const brief = me.role === 'desa' ? `<div class="mt8 sm" style="border-top:1px dashed var(--border);padding-top:8px"><div class="label">Deskripsi partner</div><div class="mu" style="display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">${A.esc(pr.about || 'Belum ada deskripsi.')}</div><div class="chips mt8">${(pr.fields || []).slice(0, 4).map(x => A.chipTag(x, 'blue')).join('')}<span class="tag gray">${(pr.history || []).length} program pernah diambil</span></div></div>` : '';
       return `<div class="card tight click" data-act="openPship" data-id="${ps.id}"><div class="row top">${A.photo(p?.id, 't')}<div class="grow"><div class="row wrap"><b style="font-size:15px">${A.esc(p?.title)}</b>${A.tag(ps.completed ? 'done' : ps.status)}</div>
         <div class="sm mu mt4">${A.ic('building-community')} ${A.esc(o?.name)} · ${A.ic('map-pin')} ${A.esc(p?.city)}</div>
@@ -59,8 +59,6 @@
   });
   A.acts.pfilter = d => { A.ui.pfilter = d.k; A.render(); };
   A.acts.openPship = (d, el, e) => { if (e.target.closest('button')) return; A.go('/partnerships/' + d.id); };
-  A.acts.acceptReq = d => { const ps = S.pship(d.id); A.confirm('Terima request?', `Reservation & diskusi 7 hari dengan <b>${A.esc(S.user(ps.univId).name)}</b> akan dimulai.`, () => A.run(() => { S.acceptRequest(d.id); A.toast('Request diterima — reservation dimulai.'); A.go('/partnerships/' + d.id); }), { label: 'Terima request' }); };
-  A.acts.declineReq = d => A.confirm('Tolak request?', 'Kebutuhan akan terbuka kembali untuk universitas lain.', () => A.run(() => { S.declineRequest(d.id); A.toast('Request ditolak — kebutuhan terbuka kembali.'); }), { danger: true, label: 'Tolak' });
 
   /* ================= ruang partnership ================= */
   const STAGES = ['Pengajuan', 'Diskusi', 'Proposal', 'Review', 'Matched'];
@@ -76,7 +74,7 @@
     const univ = S.user(ps.univId), desa = S.user(ps.desaId);
     const tabs = [['info', 'Informasi kedua pihak'], ['proposal', 'Proposal'], ['status', 'Status & riwayat']];
     const tab = A.ui.tab[id] || (ps.status === 'proposal' || ps.status === 'matched' ? 'proposal' : 'info');
-    const banner = ps.status === 'requested' ? `<div class="card warn mt16">${A.ic('lock')} <b>${me.role === 'desa' ? 'Request menunggu keputusan Anda.' : 'Menunggu desa menerima request Anda.'}</b> <span class="sm">Kebutuhan terkunci untuk universitas lain selama request ini diproses.</span> ${me.role === 'desa' ? `<div class="row mt8"><button class="btn sm" data-act="acceptReq" data-id="${ps.id}">Terima request</button><button class="btn sm red" data-act="declineReq" data-id="${ps.id}">Tolak</button></div>` : `<div class="row mt8"><button class="btn sm red" data-act="cancelReq" data-id="${ps.id}">Batalkan request</button></div>`}</div>` :
+    const banner = ps.status === 'reserved' ? `<div class="card warn mt16">${A.ic('lock')} <b>Diskusi berjalan.</b> <span class="sm">${me.role === 'desa' ? 'Universitas yang lebih dulu mengajukan otomatis masuk diskusi agar penilaian tidak bias nama kampus. Keputusan diterima atau tidaknya diambil saat review proposal.' : 'Kebutuhan ini tereservasi untuk Anda selama masa diskusi. Desa tidak menyeleksi pengajuan; keputusan diambil saat review proposal.'}</span>${me.role === 'univ' ? `<div class="row mt8"><button class="btn sm red" data-act="cancelReq" data-id="${ps.id}">Mundur dari diskusi</button></div>` : ''}</div>` :
       ps.status === 'rejected' ? `<div class="card mt16" style="background:var(--red-100);border-color:#F0C2BC">${A.ic('circle-x')} <b>Proposal ditolak.</b> Kebutuhan terbuka kembali.${ps.proposal?.reviewNote ? `<div class="sm mt4">Catatan desa: ${A.esc(ps.proposal.reviewNote)}</div>` : ''}</div>` :
         ps.status === 'expired' ? `<div class="card mt16" style="background:var(--cream-200)">${A.ic('hourglass-empty')} <b>Waktu habis (Expired).</b> Kebutuhan terbuka kembali.</div>` :
           ps.status === 'declined' ? `<div class="card mt16" style="background:var(--cream-200)">${A.ic('info-circle')} Request ini tidak dilanjutkan. Kebutuhan terbuka kembali.</div>` : '';
@@ -88,7 +86,7 @@
       </div><div class="col">${V.sidePanel(ps, me, p)}</div></div>`;
   });
   A.acts.ptab = d => { A.ui.tab[d.id] = d.t; A.render(); };
-  A.acts.cancelReq = d => A.confirm('Batalkan request?', 'Request dibatalkan dan kebutuhan terbuka kembali untuk universitas lain.', () => A.run(() => { S.cancelRequest(d.id); A.toast('Request dibatalkan.'); A.go('/partnerships'); }), { danger: true, label: 'Batalkan' });
+  A.acts.cancelReq = d => A.confirm('Mundur dari diskusi?', 'Kebutuhan akan terbuka kembali untuk universitas lain.', () => A.run(() => { S.cancelRequest(d.id); A.toast('Anda mundur dari diskusi.'); A.go('/partnerships'); }), { danger: true, label: 'Mundur' });
 
   /* ---------- informasi kedua pihak (pengganti roomchat) ---------- */
   V.infoTab = (ps, univ, desa) => `${ps.status === 'reserved' ? `<div class="card soft tight mb">${A.ic('info-circle')} Masa diskusi berjalan (<b>${A.cd(ps.reservationEnds)}</b>). Hubungi pihak lain lewat kontak di bawah, catat kesepakatan di agenda, lalu lanjutkan ke tahap proposal.</div>` : ''}

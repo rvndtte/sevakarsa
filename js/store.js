@@ -1,12 +1,12 @@
 /* Data & logika bisnis (tanpa backend): disimpan di localStorage.
-   Alur: Available -> (request dikirim) Diajukan/terkunci -> (desa menerima) Reserved 7 hari -> Proposal 7 hari -> Matched | Rejected | Expired.
+   Alur: Available -> (universitas mengajukan) langsung Reserved 7 hari, desa tidak menyaring/menolak (anti-bias) -> Proposal 7 hari -> Matched | Rejected | Expired.
    Kebutuhan terkunci selama ada request/partnership aktif; terbuka lagi jika ditolak, dibatalkan, atau expired. */
 window.App = window.App || {};
 (function (A) {
-  const KEY = 'sumbangruang.demo.v2', DAY = A.DAY, RESERVE_DAYS = 7, PROPOSAL_DAYS = 7, VERSION = 2;
+  const KEY = 'sumbangruang.demo.v2', DAY = A.DAY, RESERVE_DAYS = 7, PROPOSAL_DAYS = 7, VERSION = 3, MAX_ACTIVE = 5;
   const LOCKED = ['requested', 'reserved', 'proposal', 'matched'];
   let D = null;
-  A.LOCKED = LOCKED;
+  A.LOCKED = LOCKED; A.MAX_ACTIVE = MAX_ACTIVE;
 
   /* ------------------------------------------------------------------ seed */
   function seed() {
@@ -37,7 +37,7 @@ window.App = window.App || {};
       desc: '', condition: '', need: '', target: ''
     }, o);
     const problems = [
-      P('p1', 'd1', 'Digitalisasi UMKM Desa', 'Teknologi', 'Kab. Malang', ['Web Development', 'UI/UX Design', 'Bisnis', 'Data Analysis'], 2, 3, 5, 'requested', 12, { partnershipId: 'pt1', desc: 'UMKM lokal belum terdigitalisasi sehingga jangkauan pemasaran terbatas dan pencatatan produk dilakukan manual.', condition: 'Terdapat balai desa, akses internet, dan 10 UMKM aktif yang siap dilibatkan. Belum ada toko online maupun pencatatan digital.', need: 'Platform toko online sederhana, pelatihan pemasaran digital, dan panduan penggunaan yang mudah dipahami pelaku UMKM.', target: 'Toko online aktif untuk minimal 10 UMKM, 3 sesi pelatihan, panduan pengguna, dan laporan hasil.' }),
+      P('p1', 'd1', 'Digitalisasi UMKM Desa', 'Teknologi', 'Kab. Malang', ['Web Development', 'UI/UX Design', 'Bisnis', 'Data Analysis'], 2, 3, 5, 'reserved', 12, { partnershipId: 'pt1', desc: 'UMKM lokal belum terdigitalisasi sehingga jangkauan pemasaran terbatas dan pencatatan produk dilakukan manual.', condition: 'Terdapat balai desa, akses internet, dan 10 UMKM aktif yang siap dilibatkan. Belum ada toko online maupun pencatatan digital.', need: 'Platform toko online sederhana, pelatihan pemasaran digital, dan panduan penggunaan yang mudah dipahami pelaku UMKM.', target: 'Toko online aktif untuk minimal 10 UMKM, 3 sesi pelatihan, panduan pengguna, dan laporan hasil.' }),
       P('p2', 'd3', 'Sistem Monitoring Kualitas Air', 'Lingkungan', 'Kab. Malang', ['IoT', 'Data Analysis', 'Web Development'], 3, 3, 4, 'proposal', 30, { partnershipId: 'pt2', desc: 'Kualitas air sumber desa belum dipantau secara berkala.', condition: 'Ada 3 titik sumber air dan posyandu yang menjadi pusat informasi.', need: 'Sensor sederhana dan dasbor pemantauan yang bisa dibaca perangkat desa.', target: 'Dasbor pemantauan aktif dan SOP tindak lanjut kualitas air.' }),
       P('p3', 'd2', 'Pengelolaan Sampah Organik', 'Lingkungan', 'Kab. Pasuruan', ['Bioteknologi', 'Agribisnis'], 2, 3, 4, 'matched', 60, { partnershipId: 'pt3', desc: 'Sampah organik rumah tangga menumpuk di TPS desa.', condition: 'Belum ada fasilitas pengomposan.', need: 'Sistem pengomposan komunal dan pelatihan warga.', target: 'Unit kompos aktif dan 30 warga terlatih.' }),
       P('p4', 'd1', 'Pemasaran Kopi Desa', 'UMKM', 'Kab. Malang', ['Pemasaran Digital', 'Bisnis', 'Desain Grafis'], 1, 3, 4, 'reserved', 20, { partnershipId: 'pt4', desc: 'Kopi desa belum memiliki merek dan kanal pemasaran yang jelas.', condition: 'Produksi kopi rutin, kemasan masih sederhana.', need: 'Branding, kemasan, dan strategi pemasaran digital.', target: 'Merek kopi, katalog produk, dan akun pemasaran aktif.' }),
@@ -50,7 +50,7 @@ window.App = window.App || {};
     const blankProp = () => ({ status: 'draft', title: '', file: null, coordinators: [], advisors: [], formation: '', start: '', end: '' });
     const doc = (name, by, ts, kind = 'pdf') => ({ id: A.uid('x'), name, by, ts, kind });
     const partnerships = [
-      { id: 'pt1', problemId: 'p1', univId: 'u2', desaId: 'd1', status: 'requested', createdAt: t - 2 * 3600000, message: 'Tim kami berpengalaman melatih UMKM digital dan siap membantu digitalisasi.', proposal: null, agenda: [], docs: [], log: [{ ts: t - 2 * 3600000, text: 'Request partnership dikirim oleh Universitas Negeri Malang' }] },
+      { id: 'pt1', problemId: 'p1', univId: 'u2', desaId: 'd1', status: 'reserved', createdAt: t - 2 * 3600000, message: 'Tim kami berpengalaman melatih UMKM digital dan siap membantu digitalisasi.', reservationEnds: t + 7 * DAY - 2 * 3600000, proposal: null, agenda: [{ id: 'g0', text: 'Pemaparan kebutuhan', done: false }], docs: [], log: [{ ts: t - 2 * 3600000, text: 'Request dikirim oleh Universitas Negeri Malang — otomatis masuk diskusi (7 hari)' }] },
       { id: 'pt2', problemId: 'p2', univId: 'u1', desaId: 'd3', status: 'proposal', createdAt: ago(12), message: 'Kami tertarik membantu monitoring air.', reservationEnds: ago(5), proposalEnds: t + 3 * DAY + 4 * 3600000, proposal: blankProp(), agenda: [{ id: 'g1', text: 'Survei titik sumber air', done: true }], docs: [], log: [{ ts: ago(12), text: 'Request partnership dikirim' }, { ts: ago(11), text: 'Desa menerima request — Reservation dimulai' }, { ts: ago(5), text: 'Tahap proposal dimulai (batas 7 hari)' }] },
       { id: 'pt3', problemId: 'p3', univId: 'u2', desaId: 'd2', status: 'matched', createdAt: ago(58), reservationEnds: ago(45), proposalEnds: ago(38), proposal: { status: 'accepted', title: 'Unit Kompos Komunal', file: { name: 'Proposal Unit Kompos.pdf', size: 210000, data: null }, coordinators: ['Rafi Aditya'], advisors: ['Ir. Bambang S.'], formation: 12, start: '2025-01-05', end: '2025-03-05', submittedAt: ago(40) }, agenda: [], docs: [doc('Proposal Unit Kompos.pdf', 'u2', ago(40))], log: [{ ts: ago(58), text: 'Request partnership dikirim' }, { ts: ago(45), text: 'Desa menerima request' }, { ts: ago(38), text: 'Proposal diterima — Matched' }] },
       { id: 'pt4', problemId: 'p4', univId: 'u1', desaId: 'd1', status: 'reserved', createdAt: ago(2), message: 'Kami punya pengalaman branding UMKM pangan.', reservationEnds: t + 5 * DAY + 14 * 3600000, proposal: null, agenda: [{ id: 'g2', text: 'Pemaparan kebutuhan', done: true }, { id: 'g3', text: 'Tanya jawab & klarifikasi', done: true }, { id: 'g4', text: 'Kesepakatan awal', done: false }], docs: [doc('Ringkasan Kebutuhan.pdf', 'd1', ago(1.5))], log: [{ ts: ago(2), text: 'Request partnership dikirim oleh Universitas Brawijaya' }, { ts: ago(1.7), text: 'Desa menerima request — Reservation dimulai (7 hari)' }] },
@@ -59,10 +59,10 @@ window.App = window.App || {};
     ];
     const N = (userId, type, text, link, hAgo, read = false) => ({ id: A.uid('n'), userId, type, text, link, ts: t - hAgo * 3600000, read });
     const notifs = [
-      N('d1', 'partnership', 'Universitas Negeri Malang mengajukan partnership untuk Digitalisasi UMKM Desa', '#/partnerships/pt1', 2),
+      N('d1', 'partnership', 'Universitas Negeri Malang mengajukan kerja sama untuk Digitalisasi UMKM Desa — diskusi 7 hari dimulai', '#/partnerships/pt1', 2),
       N('d1', 'deadline', 'Masa diskusi dengan Universitas Brawijaya berakhir 5 hari lagi', '#/partnerships/pt4', 5),
       N('d1', 'status', 'Kebutuhan "Pengolahan Limbah Kopi" dipublikasikan', '#/desa/problem/p8', 72, true),
-      N('u1', 'partnership', 'Desa Sumber Rejeki menerima request untuk Pemasaran Kopi Desa', '#/partnerships/pt4', 40),
+      N('u1', 'partnership', 'Diskusi dengan Desa Sumber Rejeki untuk Pemasaran Kopi Desa berjalan', '#/partnerships/pt4', 40),
       N('u1', 'deadline', 'Deadline proposal Monitoring Kualitas Air tinggal 3 hari', '#/partnerships/pt2', 6),
       N('u1', 'expire', 'Reservation "Pelatihan Literasi Digital" berakhir (Expired)', '#/partnerships/pt5', 24 * 30, true),
       N('a1', 'system', '3 akun baru menunggu verifikasi', '#/admin/verify', 1)
@@ -95,6 +95,7 @@ window.App = window.App || {};
   S.pship = id => D.partnerships.find(x => x.id === id);
   S.problemsOf = desaId => D.problems.filter(p => p.desaId === desaId);
   S.pshipsOf = user => D.partnerships.filter(p => user.role === 'desa' ? p.desaId === user.id : p.univId === user.id);
+  S.activeCount = (desaId, exceptId) => D.problems.filter(p => p.desaId === desaId && p.id !== exceptId && ['available', 'requested', 'reserved', 'proposal'].includes(p.status)).length;
   S.requestsFor = problemId => D.partnerships.filter(p => p.problemId === problemId && p.status === 'requested');
   S.activePship = (problemId, univId) => D.partnerships.find(p => p.problemId === problemId && p.univId === univId && LOCKED.includes(p.status));
   S.lastPship = (problemId, univId) => D.partnerships.filter(p => p.problemId === problemId && p.univId === univId).sort((a, b) => b.createdAt - a.createdAt)[0];
@@ -161,6 +162,7 @@ window.App = window.App || {};
       need.push('condition', 'need', 'target');
       for (const k of need) if (!String(data[k] || '').trim()) fail('Lengkapi semua bagian wajib sebelum mempublikasikan.');
       if (!data.skills || !data.skills.length) fail('Pilih minimal satu kompetensi yang dibutuhkan.');
+      if (S.activeCount(desaId, id) >= MAX_ACTIVE) fail(`Maksimal ${MAX_ACTIVE} kebutuhan aktif per desa. Selesaikan atau hapus salah satu terlebih dulu.`);
     } else if (!String(data.title || '').trim()) fail('Isi judul kebutuhan terlebih dulu.');
     const d = S.user(desaId); let p = id && S.problem(id);
     const base = { title: data.title, category: data.category || 'Teknologi', desc: data.desc || '', condition: data.condition || '', need: data.need || '', target: data.target || '', duration: +data.duration || 2, skills: data.skills || [], teamMin: +data.teamMin || 3, teamMax: +data.teamMax || 5, city: d.profile.city, province: d.profile.province, deadline: data.deadline ? new Date(data.deadline).getTime() : A.now() + 30 * DAY };
@@ -181,29 +183,16 @@ window.App = window.App || {};
     if (!p) fail('Kebutuhan tidak ditemukan.');
     if (p.status !== 'available') fail(S.isLocked(p) ? 'Kebutuhan ini sedang diajukan/berjalan bersama universitas lain.' : 'Kebutuhan ini sudah tidak tersedia.');
     if (u.verified !== 'approved') fail('Akun belum terverifikasi.');
-    const ps = { id: A.uid('pt'), problemId, univId, desaId: p.desaId, status: 'requested', createdAt: A.now(), message: message || '', proposal: null, agenda: [], docs: [], log: [] };
-    stamp(ps, `Request partnership dikirim oleh ${u.name}`); D.partnerships.push(ps);
-    p.status = 'requested'; p.partnershipId = ps.id;   // kebutuhan terkunci
-    notify(p.desaId, 'partnership', `${u.name} mengajukan partnership untuk ${p.title}`, '#/partnerships/' + ps.id);
-    logAct('heart-handshake', `Request partnership: ${u.name} × ${p.title}`); save(); return ps;
+    const ps = { id: A.uid('pt'), problemId, univId, desaId: p.desaId, status: 'reserved', createdAt: A.now(), reservationEnds: A.now() + RESERVE_DAYS * DAY, message: message || '', proposal: null, agenda: [], docs: [], log: [] };
+    stamp(ps, `Request dikirim oleh ${u.name} — otomatis masuk diskusi (${RESERVE_DAYS} hari)`); D.partnerships.push(ps);
+    p.status = 'reserved'; p.partnershipId = ps.id;   // langsung terkunci & diskusi, tanpa seleksi desa
+    notify(p.desaId, 'partnership', `${u.name} mengajukan kerja sama untuk ${p.title} — masa diskusi ${RESERVE_DAYS} hari dimulai`, '#/partnerships/' + ps.id);
+    logAct('heart-handshake', `Diskusi dimulai: ${u.name} × ${p.title}`); save(); return ps;
   };
   S.cancelRequest = id => {
-    const ps = S.pship(id), p = S.problem(ps.problemId); if (ps.status !== 'requested') fail('Request sudah diproses.');
-    ps.status = 'declined'; stamp(ps, 'Request dibatalkan oleh universitas'); unlock(p, 'request dibatalkan');
-    notify(ps.desaId, 'reject', `${nameOf(ps.univId)} membatalkan request untuk ${p.title}`, '#/desa/problem/' + p.id); save();
-  };
-  S.declineRequest = id => {
-    const ps = S.pship(id), p = S.problem(ps.problemId); if (ps.status !== 'requested') fail('Request sudah diproses.');
-    ps.status = 'declined'; stamp(ps, 'Request ditolak oleh desa'); unlock(p, 'request ditolak');
-    notify(ps.univId, 'reject', `Request untuk "${p.title}" ditolak desa`, '#/partnerships/' + id); save();
-  };
-  S.acceptRequest = id => {
-    const ps = S.pship(id), p = S.problem(ps.problemId);
-    if (ps.status !== 'requested') fail('Request sudah diproses.');
-    ps.status = 'reserved'; ps.reservationEnds = A.now() + RESERVE_DAYS * DAY; p.status = 'reserved'; p.partnershipId = ps.id;
-    stamp(ps, `Desa menerima request — Reservation dimulai (${RESERVE_DAYS} hari)`);
-    notify(ps.univId, 'partnership', `${nameOf(p.desaId)} menerima request untuk ${p.title}`, '#/partnerships/' + id);
-    logAct('heart-handshake', `Reserved: ${nameOf(ps.univId)} × ${p.title}`); save();
+    const ps = S.pship(id), p = S.problem(ps.problemId); if (ps.status !== 'reserved') fail('Kerja sama hanya bisa dibatalkan pada masa diskusi.');
+    ps.status = 'declined'; stamp(ps, 'Universitas mengundurkan diri dari diskusi'); unlock(p, 'universitas mundur');
+    notify(ps.desaId, 'reject', `${nameOf(ps.univId)} mengundurkan diri dari ${p.title}`, '#/desa/problem/' + p.id); save();
   };
   S.addAgenda = (id, text) => { if (!text.trim()) return; S.pship(id).agenda.push({ id: A.uid('g'), text: text.trim(), done: false }); save(); };
   S.toggleAgenda = (id, gid) => { const g = S.pship(id).agenda.find(x => x.id === gid); g.done = !g.done; save(); };
