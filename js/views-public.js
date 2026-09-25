@@ -3,15 +3,21 @@
   const hills = `<svg viewBox="0 0 400 480" preserveAspectRatio="xMidYMid slice"><defs><linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F4E7B0"/><stop offset=".55" stop-color="#CFE5D3"/><stop offset="1" stop-color="#B5D5C0"/></linearGradient></defs><rect width="400" height="480" fill="url(#sky)"/><circle cx="292" cy="96" r="38" fill="#FBF1C4"/><circle cx="292" cy="96" r="58" fill="#FBF1C4" opacity=".35"/><path d="M0 250 Q90 190 190 240 T400 220 V480 H0Z" fill="#8DB89D"/><path d="M0 300 Q120 240 230 290 T400 275 V480 H0Z" fill="#5F9376"/><path d="M0 355 Q100 305 210 345 T400 335 V480 H0Z" fill="#3F6B54"/><path d="M0 410 Q140 370 260 405 T400 395 V480 H0Z" fill="#22432F"/><g><rect x="86" y="292" width="34" height="22" fill="#E3B28F"/><path d="M80 292 L103 272 L126 292Z" fill="#C0583A"/><rect x="98" y="300" width="9" height="14" fill="#7A3E2A"/></g><g><rect x="232" y="318" width="40" height="26" fill="#EBC9A8"/><path d="M226 318 L252 294 L278 318Z" fill="#B24B31"/><rect x="246" y="328" width="10" height="16" fill="#7A3E2A"/><rect x="260" y="326" width="8" height="8" fill="#F6E7A8"/></g><g><rect x="150" y="334" width="26" height="18" fill="#E3B28F"/><path d="M146 334 L163 319 L180 334Z" fill="#C0583A"/></g><g fill="#2C5A41"><path d="M40 330 l14 -34 l14 34Z"/><path d="M36 346 l18 -38 l18 38Z"/><path d="M330 322 l12 -30 l12 30Z"/><path d="M326 338 l16 -34 l16 34Z"/></g><g fill="#5B3A29"><rect x="52" y="346" width="4" height="10"/><rect x="340" y="338" width="4" height="10"/></g></svg>`;
 
   const story = [['01', 'Available', 'tg-green', 'Desa mengajukan kebutuhan', 'Desa membuat profil, lalu mempublikasikan masalah beserta kompetensi yang dibutuhkan. Kebutuhan tampil terbuka bagi semua universitas.'], ['02', 'Reserved', 'tg-amber', 'Universitas mengajukan', 'Universitas menjelajah kebutuhan desa lalu mengajukan partnership. Kebutuhan yang diajukan terkunci untuk pihak lain.'], ['03', 'Proposal', 'tg-blue', 'Reservation & proposal', 'Setelah request diterima ada diskusi 1 minggu, lalu universitas mengirim proposal dalam 1 minggu. Jika lewat, status menjadi Expired.'], ['04', 'Matched', 'tg-purple', 'KKN & dokumentasi', 'Proposal diterima, status Matched. Pelaksanaan, laporan, dan arsip dokumentasi tersimpan sebagai riwayat desa.']];
+  const problems = [['unlink', 'c-red', 'Kebutuhan desa tidak sampai ke kampus', 'Masalah desa hanya diketahui lewat kenalan atau jalur informal, sehingga banyak kampus tidak pernah tahu apa yang sebenarnya dibutuhkan.'], ['target-arrow', 'c-amber', 'Program KKN tidak tepat sasaran', 'Tema dan kegiatan sering ditentukan dari sisi kampus, bukan dari masalah nyata desa, sehingga hasilnya kurang terasa manfaatnya.'], ['users-group', 'c-blue', 'Kompetensi mahasiswa tidak dipertemukan', 'Desa yang butuh keahlian tertentu tidak punya cara mudah menemukan tim yang sesuai, dan sebaliknya.'], ['file-off', 'c-purple', 'Tidak ada jejak & keberlanjutan', 'Setelah KKN selesai, dokumentasi tercecer dan program tidak dilanjutkan, sehingga desa berikutnya mengulang dari nol.']];
+  const sdgs = [['4', 'Pendidikan Berkualitas', '#C5192D', 'KKN menjadi pembelajaran kontekstual: mahasiswa menerapkan keilmuan pada masalah nyata.'], ['8', 'Pekerjaan Layak & Pertumbuhan Ekonomi', '#A21942', 'Solusi berbasis kompetensi mendorong ekonomi dan usaha lokal desa.'], ['10', 'Berkurangnya Kesenjangan', '#DD1367', 'Desa di mana pun punya kesempatan yang sama untuk terlihat dan dibantu kampus.'], ['11', 'Kota & Permukiman Berkelanjutan', '#FD9D24', 'Perbaikan infrastruktur, lingkungan, dan layanan dasar permukiman desa.'], ['17', 'Kemitraan untuk Mencapai Tujuan', '#19486A', 'Inti platform: kemitraan desa, universitas, dan mahasiswa yang terukur dan terdokumentasi.']];
+  const impacts = [['target-arrow', 'Tepat sasaran', 'Program dimulai dari kebutuhan yang dinyatakan desa sendiri.'], ['scale', 'Terbuka & adil', 'Setiap desa terlihat oleh banyak universitas, bukan hanya yang punya koneksi.'], ['chart-line', 'Terukur', 'Status, proposal, dan laporan tercatat sehingga dampak bisa dievaluasi.'], ['history', 'Berkelanjutan', 'Riwayat dokumentasi tersimpan sebagai fondasi kolaborasi berikutnya.']];
   const perks = t => t.map(x => `<div class="row top gap8">${A.ic('circle-check-filled', 'chk')}<span>${x}</span></div>`).join('');
 
   A.route('/', null, () => {
     const me = A.Store.me();
     const D = A.Store.data, desa = D.users.filter(u => u.role === 'desa' && u.verified === 'approved').length, uni = D.users.filter(u => u.role === 'univ' && u.verified === 'approved').length, coll = D.partnerships.filter(p => p.status === 'matched').length;
     const cta = me ? `<a class="btn lime lg" href="#${A.home(me)}">Buka dasbor ${A.ic('arrow-right')}</a>` : `<a class="btn lime lg" href="#/register">Mulai sekarang ${A.ic('arrow-right')}</a><a class="btn outd lg" href="#/" data-act="scroll" data-to="how">Pelajari lebih lanjut</a>`;
-    return `<div class="pub">
+    return `<div class="pub"><div class="pprog"></div>
+    <div class="fnav"><a class="brand" href="#/" style="padding:0">${A.ic('leaf')}SumbangRuang</a>
+      <div class="links">${[['problem', 'Masalah'], ['how', 'Cara kerja'], ['impact', 'Dampak'], ['benefit', 'Manfaat'], ['faq', 'FAQ']].map(l => `<a href="#/" data-act="scroll" data-to="${l[0]}">${l[1]}</a>`).join('')}</div>
+      ${me ? `<a class="btn lime sm" href="#${A.home(me)}">Dasbor</a>` : `<a class="btn lime sm" href="#/register">Daftar</a>`}</div>
     <div class="hero"><div class="pubnav"><a class="brand" href="#/" style="padding:0">${A.ic('leaf')}SumbangRuang</a>
-      <div class="links"><a href="#/" data-act="scroll" data-to="how">Cara kerja</a><a href="#/" data-act="scroll" data-to="benefit">Manfaat</a><a href="#/" data-act="scroll" data-to="faq">FAQ</a></div>
+      <div class="links"><a href="#/" data-act="scroll" data-to="problem">Masalah</a><a href="#/" data-act="scroll" data-to="how">Cara kerja</a><a href="#/" data-act="scroll" data-to="impact">Dampak</a><a href="#/" data-act="scroll" data-to="benefit">Manfaat</a><a href="#/" data-act="scroll" data-to="faq">FAQ</a></div>
       <div class="row">${me ? `<a class="btn lime sm" href="#${A.home(me)}">Dasbor</a>` : `<a class="btn outd sm" href="#/login">Masuk</a><a class="btn lime sm" href="#/register">Daftar</a>`}</div></div>
       <div class="hg"><div class="rise"><span class="eyebrow">${A.ic('sparkles')}Platform KKN Desa & Universitas</span>
         <h1>Dari Desa,<br>Untuk <em>Masa Depan</em></h1>
@@ -22,6 +28,12 @@
           <div class="float f1"><div class="ib ci c-green s">${A.ic('home-heart')}</div><div><div class="b sm">Perbaikan irigasi desa</div><div class="xs mu">Butuh: Teknik Sipil, Pertanian</div></div></div>
           <div class="float f2">${A.ic('heart-handshake', 'lm')}<div><div class="b sm">Matched</div><div class="xs mu">Desa ⇄ Universitas</div></div></div>
           <div class="pill">Solusi nyata untuk desa</div></div></div></div>
+
+    <div class="prob" id="problem"><div class="section"><span class="kick">Permasalahan</span><h2>Niat baik KKN belum selalu sampai ke tempat yang tepat</h2>
+      <p class="sub mu">Ribuan mahasiswa turun ke desa setiap tahun, tetapi penyaluran program KKN masih sering terputus dari kebutuhan nyata masyarakat.</p>
+      <div class="g4 mt24 probg">${problems.map(p => `<div class="card pcard"><div class="ib ${p[1]}">${A.ic(p[0])}</div><h3>${p[2]}</h3><p class="mu sm">${p[3]}</p></div>`).join('')}</div>
+</div>
+      <div class="bridge"><b>Bagaimana SumbangRuang menjawabnya?</b><span>${A.ic('arrow-down')}</span></div></div>
 
     <section class="story" id="how"><div class="stick"><div class="story-scene" aria-hidden="true"></div><div class="warm"></div>
       <div class="story-top"><span class="kick lm">Cara kerja</span><h2>Satu alur, dari kebutuhan hingga dokumentasi</h2></div>
@@ -36,8 +48,14 @@
       <path d="M0 182 C240 150 480 160 720 178 S1160 196 1440 166 V240 H0Z" fill="#4C8C63"/>
       <g><rect x="640" y="164" width="26" height="15" fill="#F0DCC0"/><path d="M636 164l17-13 17 13z" fill="#C0583A"/><rect x="684" y="168" width="20" height="12" fill="#F0DCC0"/><path d="M680 168l14-11 14 11z" fill="#B24B31"/><rect x="1130" y="170" width="22" height="13" fill="#F0DCC0"/><path d="M1126 170l15-12 15 12z" fill="#C0583A"/></g>
       <g fill="#2C5A41"><path d="M560 178l8-16 8 16z"/><path d="M578 180l6-12 6 12z"/><path d="M780 182l8-17 8 17z"/><path d="M1220 176l8-16 8 16z"/><path d="M1240 178l6-12 6 12z"/><path d="M180 172l8-16 8 16z"/></g>
-      <path d="M0 208 C300 188 620 198 940 204 S1320 194 1440 200 V240 H0Z" fill="#A9CDB4"/>
-      <path d="M0 226 C320 212 700 220 1040 224 S1360 216 1440 220 V240 H0Z" fill="#F3F3EE"/></svg></div>
+      <path d="M0 208 C300 188 620 198 940 204 S1320 194 1440 200 V240 H0Z" fill="#2A6B4A"/>
+      <path d="M0 226 C320 212 700 220 1040 224 S1360 216 1440 220 V240 H0Z" fill="#10291D"/></svg></div>
+
+    <div class="section" id="impact"><span class="kick">Dampak</span><h2>Selaras dengan Tujuan Pembangunan Berkelanjutan</h2>
+      <p class="sub mu">SumbangRuang berkontribusi pada agenda SDGs melalui kolaborasi desa dan perguruan tinggi.</p>
+      <div class="sdgs mt24">${sdgs.map(s => `<div class="sdg" style="--c:${s[2]}"><div class="sn">${s[0]}</div><div><div class="b">SDG ${s[0]} · ${s[1]}</div><p class="sm">${s[3]}</p></div></div>`).join('')}</div>
+      <h3 class="mt32 imph">Dampak yang diharapkan</h3>
+      <div class="g4 mt16">${impacts.map(i => `<div class="card pcard"><div class="ib c-green">${A.ic(i[0])}</div><h3>${i[1]}</h3><p class="mu sm">${i[2]}</p></div>`).join('')}</div></div>
 
     <div class="section" id="benefit"><span class="kick">Manfaat</span><h2>Manfaat untuk semua pihak</h2>
       <div class="g2 mt24">
@@ -113,9 +131,60 @@
   A.acts.adminVerifyDemo = () => { const a = A.Store.data.users.find(x => x.role === 'admin'); A.Store.data.session = a.id; A.Store.save(); A.ui.verifySel = A.ui.registered; A.ui.verifyTab = 'pending'; A.go('/admin/verify'); A.render(); };
 
   A.reveal = () => {
-    const els = A.$$('.pub .section h2, .pub .section .kick, .pub .section .sub, .pub .perk, .pub .faq, .pub .cta, .pub .foot');
-    if (!('IntersectionObserver' in window)) return;
-    const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } }), { threshold: .12, rootMargin: '0px 0px -6% 0px' });
-    els.forEach((el, i) => { el.classList.add('rv'); el.style.setProperty('--d', (i % 3) * 90 + 'ms'); if (el.getBoundingClientRect().top < innerHeight * .96) el.classList.add('in'); else io.observe(el); });
+    if (!A.$('.pub .hero')) return;
+    const reduce = matchMedia('(prefers-reduced-motion:reduce)').matches;
+
+    /* hitung naik untuk statistik hero */
+    A.$$('.hstats .v').forEach(el => {
+      const n = parseInt(el.textContent, 10), suf = el.textContent.replace(/^\d+/, '');
+      if (reduce || !n) return;
+      const t0 = performance.now(), dur = 1300;
+      const tick = t => { const p = Math.min(1, (t - t0) / dur); el.textContent = Math.round(n * (1 - Math.pow(1 - p, 3))) + suf; if (p < 1) requestAnimationFrame(tick); };
+      el.textContent = '0' + suf; requestAnimationFrame(tick);
+    });
+
+    /* judul dipecah per kata */
+    A.$$('.pub .section h2').forEach(h => { if (h.querySelector('.w')) return; h.innerHTML = h.textContent.split(' ').map((w, i) => `<span class="w"><span style="--i:${i}">${w}</span></span>`).join(' '); });
+    A.$$('.pub .section').forEach(s => { if (s.getBoundingClientRect().top < innerHeight * .8) s.classList.add('seen'); });
+
+    /* spotlight kartu mengikuti kursor */
+    if (!A._pubSpot) { A._pubSpot = true; document.addEventListener('pointermove', e => { const c = e.target.closest && e.target.closest('.pcard,.sdg,.perk,.faq'); if (!c) return; const r = c.getBoundingClientRect(); c.style.setProperty('--mx', e.clientX - r.left + 'px'); c.style.setProperty('--my', e.clientY - r.top + 'px'); }, { passive: true }); }
+
+    /* reveal: varian arah + jeda berurutan per grup */
+    const els = A.$$('.pub .section h2, .pub .section .kick, .pub .section .sub, .pub .imph, .pub .bridge b, .pub .perk, .pub .pcard, .pub .sdg, .pub .faq, .pub .cta, .pub .foot');
+    if (!('IntersectionObserver' in window) || reduce) { els.forEach(el => el.classList.add('rv', 'in', 'done')); }
+    else {
+      const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); setTimeout(() => e.target.classList.add('done'), 1100); } }), { threshold: .12, rootMargin: '0px 0px -6% 0px' });
+      els.forEach(el => {
+        const sib = [...el.parentElement.children].filter(c => c.matches('.pcard,.sdg,.perk,.faq')), i = Math.max(0, sib.indexOf(el));
+        el.classList.add('rv');
+        if (el.matches('.perk')) el.classList.add(i % 2 ? 'rv-r' : 'rv-l');
+        else if (el.matches('.pcard,.sdg')) el.classList.add('rv-z');
+        el.style.setProperty('--d', (sib.length > 1 ? i * 110 : el.matches('h2') ? 80 : el.matches('.sub') ? 160 : 0) + 'ms');
+        if (el.getBoundingClientRect().top < innerHeight * .96) { el.classList.add('in'); setTimeout(() => el.classList.add('done'), 1100); } else io.observe(el);
+      });
+    }
+
+    /* scroll: progress bar, navigasi mengambang, parallax hero */
+    if (A._pubScroll) return; A._pubScroll = true;
+    let tick = false;
+    const frame = () => {
+      tick = false;
+      const hero = A.$('.pub .hero'); if (!hero) return;
+      const y = scrollY, max = document.documentElement.scrollHeight - innerHeight, hh = hero.offsetHeight;
+      const bar = A.$('.pprog'); if (bar) bar.style.transform = `scaleX(${max > 0 ? Math.min(1, y / max) : 0})`;
+      const fn = A.$('.fnav'); if (fn) fn.classList.toggle('show', y > hh * .8);
+      if (!reduce && y < hh * 1.2) {
+        const pic = A.$('.hpic .img'); if (pic) pic.style.translate = `0 ${y * .07}px`;
+        const fl = A.$$('.hpic .float'); fl.forEach((f, i) => f.style.translate = `0 ${-y * (.05 + i * .04)}px`);
+        const hg = A.$('.hero .hg > .rise:first-child'); if (hg) hg.style.translate = `0 ${y * .12}px`;
+      }
+      A.$$('.pub .section').forEach(s => { const t = s.getBoundingClientRect().top; s.style.setProperty('--sy', t); if (t < innerHeight * .8) s.classList.add('seen'); });
+      const ids = ['problem', 'how', 'impact', 'benefit', 'faq']; let cur = '';
+      ids.forEach(id => { const s = document.getElementById(id); if (s && s.getBoundingClientRect().top < innerHeight * .4) cur = id; });
+      A.$$('.fnav .links a').forEach(a => a.classList.toggle('on', a.dataset.to === cur));
+    };
+    addEventListener('scroll', () => { if (!tick) { tick = true; requestAnimationFrame(frame); } }, { passive: true });
+    frame();
   };
 })(window.App);
