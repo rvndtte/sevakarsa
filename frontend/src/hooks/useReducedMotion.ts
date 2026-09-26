@@ -1,0 +1,20 @@
+"use client";
+
+import { useSyncExternalStore } from "react";
+
+const QUERY = "(prefers-reduced-motion: reduce)";
+
+const subscribe = (onChange: () => void) => {
+  const media = window.matchMedia(QUERY);
+  media.addEventListener("change", onChange);
+  return () => media.removeEventListener("change", onChange);
+};
+
+/** Preferensi pengguna untuk mengurangi animasi. */
+export function useReducedMotion(): boolean {
+  return useSyncExternalStore(
+    subscribe,
+    () => window.matchMedia(QUERY).matches,
+    () => false,
+  );
+}
